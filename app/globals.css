@@ -1,0 +1,291 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* ── DESIGN TOKENS ────────────────────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --navy-950: #030e1f;
+  --navy-900: #061326;   /* Primary BG */
+  --navy-800: #0B1E3A;   /* Secondary BG */
+  --navy-700: #102448;
+  --navy-600: #163057;
+
+  /* Gold — rich premium palette */
+  --gold-light: #FFD740;
+  --gold:       #E0C040;
+  --gold-dark:  #C4A020;
+
+  /* Purple */
+  --purple:     #7C3AED;
+  --purple-light: #a78bfa;
+  --purple-dark:  #5b21b6;
+
+  /* Text */
+  --white:      #ffffff;
+  --text-secondary: #D6D6D6;
+  --text-muted: #8a95a6;
+
+  /* Semantic CSS vars for shadcn */
+  --background: 214 60% 9%;
+  --foreground: 0 0% 98%;
+  --card: 214 55% 12%;
+  --card-foreground: 0 0% 98%;
+  --popover: 214 55% 12%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 43 75% 52%;
+  --primary-foreground: 214 60% 9%;
+  --secondary: 218 55% 15%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 218 45% 16%;
+  --muted-foreground: 218 20% 60%;
+  --accent: 270 80% 57%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 218 35% 20%;
+  --input: 218 35% 14%;
+  --ring: 43 75% 52%;
+  --radius: 0.5rem;
+}
+
+/* ── RESET ────────────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    background-color: var(--navy-900);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* ── UTILITY CLASSES ──────────────────────────────────────────── */
+@layer components {
+
+  /* ── Typography ── */
+  .heading-display {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+  .heading-hero {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+
+  /* ── Gold Gradient Text ── */
+  .gold-text {
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 60%, var(--gold-dark) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .gold-gradient {
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dark) 100%);
+  }
+
+  /* ── Purple Gradient Text ── */
+  .purple-text {
+    background: linear-gradient(135deg, var(--purple-light) 0%, var(--purple) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ── Section ── */
+  .section-padding { @apply py-20 px-4 sm:px-6 lg:px-8; }
+  .container-max   { @apply max-w-7xl mx-auto; }
+
+  /* ── Labels ── */
+  .section-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  /* ── Divider ── */
+  .divider-gold {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(224,192,64,0.45), transparent);
+  }
+  .divider-purple {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(124,58,237,0.45), transparent);
+  }
+
+  /* ── Glass Cards ── */
+  .glass-card {
+    background: rgba(11, 30, 58, 0.65);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  .glass-card-gold {
+    background: rgba(212, 175, 55, 0.06);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(212, 175, 55, 0.22);
+  }
+  .glass-card-purple {
+    background: rgba(124, 58, 237, 0.06);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(124, 58, 237, 0.22);
+  }
+
+  /* ── Primary Gold Button ── */
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 50%, var(--gold-dark) 100%);
+    color: var(--navy-900);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    transition: all 0.35s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-gold::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 55%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .btn-gold:hover::before { opacity: 1; }
+  .btn-gold:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(224,192,64,0.4), 0 0 60px rgba(124,58,237,0.1);
+  }
+
+  /* ── Outline Gold Button ── */
+  .btn-outline-gold {
+    border: 1.5px solid rgba(224,192,64,0.6);
+    color: var(--gold);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    background: transparent;
+    transition: all 0.35s ease;
+  }
+  .btn-outline-gold:hover {
+    background: rgba(224,192,64,0.1);
+    border-color: var(--gold);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(224,192,64,0.2), 0 0 40px rgba(124,58,237,0.08);
+  }
+
+  /* ── Outline Purple Button ── */
+  .btn-outline-purple {
+    border: 1.5px solid rgba(124,58,237,0.5);
+    color: var(--purple-light);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    background: transparent;
+    transition: all 0.35s ease;
+  }
+  .btn-outline-purple:hover {
+    background: rgba(124,58,237,0.1);
+    border-color: var(--purple);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(124,58,237,0.25);
+  }
+
+  /* ── Nav Link ── */
+  .nav-link {
+    color: rgba(255,255,255,0.78);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: color 0.25s ease;
+    position: relative;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -4px; left: 0;
+    width: 0; height: 1.5px;
+    background: linear-gradient(90deg, var(--gold), var(--purple));
+    transition: width 0.35s ease;
+  }
+  .nav-link:hover { color: var(--gold-light); }
+  .nav-link:hover::after { width: 100%; }
+
+  /* ── Stat Card ── */
+  .stat-card {
+    background: rgba(11,30,58,0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(224,192,64,0.18);
+    border-radius: 14px;
+    padding: 20px 28px;
+    text-align: center;
+    transition: all 0.35s ease;
+  }
+  .stat-card:hover {
+    border-color: rgba(224,192,64,0.4);
+    background: rgba(224,192,64,0.06);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.4), 0 0 30px rgba(124,58,237,0.06);
+  }
+
+  /* ── Program Card ── */
+  .program-card {
+    background: rgba(11,30,58,0.7);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 18px;
+    padding: 32px;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .program-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(224,192,64,0.07) 0%, transparent 55%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+  .program-card:hover {
+    border-color: rgba(224,192,64,0.3);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 60px rgba(124,58,237,0.08);
+  }
+  .program-card:hover::before { opacity: 1; }
+
+  /* ── Testimonial Card ── */
+  .testimonial-card {
+    background: rgba(11,30,58,0.7);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 22px;
+    padding: 40px;
+    transition: all 0.35s ease;
+  }
+}
+
+/* ── SCROLLBAR ───────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--navy-900); }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--gold), var(--purple));
+  border-radius: 3px;
+}
+
+/* ── SELECTION ───────────────────────────────────────────────── */
+::selection {
+  background: rgba(124,58,237,0.25);
+  color: white;
+}
