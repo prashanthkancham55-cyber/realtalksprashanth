@@ -181,7 +181,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
           strategy="afterInteractive"
         />
-      </body>
+      <Script
+  async
+  src="https://www.googletagmanager.com/gtag/js?id=G-4RYBH44VH0"
+/>
+
+<Script id="google-analytics" strategy="afterInteractive">
+  {`
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-4RYBH44VH0');
+  `}
+</Script></body>
     </html>
   );
 }
