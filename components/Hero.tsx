@@ -5,11 +5,12 @@ import Image from 'next/image';
 import { Phone, ChevronDown, ArrowRight } from 'lucide-react';
 import AnimatedCounter from './AnimatedCounter';
 import { Clock, Users, BookOpen } from 'lucide-react';
+import { useBookingModal } from './BookingModal';
 
 const stats = [
   { icon: Clock,    value: 9,     suffix: '+', label: 'Years Experience' },
-  { icon: Users,    value: 25000, suffix: '+', label: 'People Trained' },
-  { icon: BookOpen, value: 500,   suffix: '+', label: 'Training Sessions' },
+  { icon: Users,    value: 20000, suffix: '+', label: 'People Trained' },
+  { icon: BookOpen, value: 200,   suffix: '+', label: 'Sessions' },
 ];
 
 const roles = [
@@ -28,6 +29,7 @@ const fadeUp = {
 };
 
 export default function Hero() {
+  const { openModal } = useBookingModal();
   const scrollTo = (id: string) => document.querySelector(id)?.scrollIntoView({ behavior: 'smooth' });
 
   return (
@@ -130,7 +132,7 @@ export default function Hero() {
           className="absolute right-8 top-2/3 glass-card rounded-xl px-4 py-3 z-10"
           style={{ border: '1px solid rgba(124,58,237,0.3)' }}
         >
-          <div className="text-xl font-bold text-white heading-display">25K+</div>
+          <div className="text-xl font-bold text-white heading-display">20K+</div>
           <div className="text-xs text-white/60 whitespace-nowrap">Trained</div>
         </motion.div>
       </motion.div>
@@ -198,7 +200,7 @@ export default function Hero() {
               className="flex flex-col sm:flex-row gap-4 mb-10"
             >
               <button
-                onClick={() => scrollTo('#contact')}
+                onClick={openModal}
                 className="btn-gold flex items-center justify-center gap-2.5 px-8 py-4 rounded-full text-base font-bold"
               >
                 <Phone className="w-5 h-5" />

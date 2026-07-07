@@ -1,6 +1,7 @@
 'use client';
 
 import LoadingScreen from '@/components/LoadingScreen';
+import { BookingModalProvider } from '@/components/BookingModal';
 import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import About from '@/components/About';
@@ -17,7 +18,7 @@ import WhatsAppButton from '@/components/WhatsAppButton';
 
 export default function Home() {
   return (
-    <>
+    <BookingModalProvider>
       <LoadingScreen />
       <Header />
       <main>
@@ -34,6 +35,6 @@ export default function Home() {
       </main>
       <Footer />
       <WhatsAppButton />
-    </>
+    </BookingModalProvider>
   );
 }

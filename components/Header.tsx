@@ -4,14 +4,14 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Phone } from 'lucide-react';
+import { useBookingModal } from './BookingModal';
 
 const navLinks = [
-  { label: 'Home',         href: '#home' },
-  { label: 'About',        href: '#about' },
-  { label: 'Programs',     href: '#programs' },
-  { label: 'Gallery',      href: '#gallery' },
-  { label: 'Testimonials', href: '#testimonials' },
-  { label: 'Contact',      href: '#contact' },
+  { label: 'Home',     href: '#home' },
+  { label: 'About',   href: '#about' },
+  { label: 'Programs', href: '#programs' },
+  { label: 'Gallery',  href: '#gallery' },
+  { label: 'Contact',  href: '#contact' },
 ];
 
 export default function Header() {
@@ -23,6 +23,8 @@ export default function Header() {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  const { openModal } = useBookingModal();
 
   const scrollTo = (href: string) => {
     setMobileOpen(false);
@@ -73,7 +75,7 @@ export default function Header() {
         {/* Desktop CTA */}
         <div className="hidden lg:flex items-center">
           <button
-            onClick={() => scrollTo('#contact')}
+            onClick={openModal}
             className="btn-gold flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold tracking-wide whitespace-nowrap"
           >
             <Phone className="w-3.5 h-3.5" />

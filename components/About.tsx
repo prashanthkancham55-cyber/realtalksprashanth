@@ -4,20 +4,18 @@ import { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useInView } from 'framer-motion';
 import { Award, Users, TrendingUp, ArrowRight } from 'lucide-react';
+import { useBookingModal } from './BookingModal';
 
 const highlights = [
   { icon: Award, label: '9+ Years of Excellence' },
-  { icon: Users, label: '25,000+ Professionals Trained' },
+  { icon: Users, label: '20,000+ Professionals Trained' },
   { icon: TrendingUp, label: '100+ Career Transformations' },
 ];
 
 export default function About() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
-
-  const scrollToContact = () => {
-    document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const { openModal } = useBookingModal();
 
   return (
     <section id="about" className="relative section-padding overflow-hidden" style={{ background: 'linear-gradient(180deg, #050b18 0%, #0a0f1e 100%)' }}>
@@ -103,7 +101,7 @@ export default function About() {
             <p className="text-white/70 text-lg leading-relaxed">
               Prashanth is a motivational speaker, corporate trainer and sales coach with over{' '}
               <span className="text-gold-400 font-semibold">9 years of experience</span>. He has trained more than{' '}
-              <span className="text-gold-400 font-semibold">25,000 professionals</span> and transformed{' '}
+              <span className="text-gold-400 font-semibold">20,000 professionals</span> and transformed{' '}
               <span className="text-gold-400 font-semibold">100+ careers</span> through practical learning,
               leadership development and sales excellence.
             </p>
@@ -130,10 +128,10 @@ export default function About() {
             <div className="divider-gold" />
 
             <button
-              onClick={scrollToContact}
+              onClick={openModal}
               className="btn-gold self-start flex items-center gap-2.5 px-8 py-4 rounded-full text-base font-semibold"
             >
-              Know More About Me
+              Book a Discovery Call
               <ArrowRight className="w-4 h-4" />
             </button>
           </motion.div>

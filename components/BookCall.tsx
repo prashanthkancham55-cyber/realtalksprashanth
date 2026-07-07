@@ -3,14 +3,12 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { Phone, ArrowRight, Sparkles } from 'lucide-react';
+import { useBookingModal } from './BookingModal';
 
 export default function BookCall() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
-
-  const scrollToContact = () => {
-    document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const { openModal } = useBookingModal();
 
   return (
     <section className="relative py-32 sm:py-40 px-4 sm:px-6 lg:px-8 overflow-hidden">
@@ -81,7 +79,7 @@ export default function BookCall() {
           </p>
 
           <motion.button
-            onClick={scrollToContact}
+            onClick={openModal}
             whileHover={{ scale: 1.05, y: -3 }}
             whileTap={{ scale: 0.97 }}
             className="btn-gold flex items-center gap-3 px-10 py-5 rounded-full text-lg font-semibold shadow-gold-lg"

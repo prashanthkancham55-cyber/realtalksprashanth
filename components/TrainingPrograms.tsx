@@ -3,6 +3,7 @@
 import { useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { GraduationCap, TrendingUp, Crown, Flame, Building2, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { useBookingModal } from './BookingModal';
 
 const programs = [
   {
@@ -85,10 +86,7 @@ const cardVariants = {
 export default function TrainingPrograms() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-80px' });
-
-  const scrollToContact = () => {
-    document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const { openModal } = useBookingModal();
 
   return (
     <section id="programs" className="relative section-padding overflow-hidden" style={{ background: 'linear-gradient(180deg, #0d1630 0%, #050b18 100%)' }}>
@@ -172,7 +170,7 @@ export default function TrainingPrograms() {
 
                 {/* CTA */}
                 <button
-                  onClick={scrollToContact}
+                  onClick={openModal}
                   className="btn-gold flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-semibold mt-2"
                 >
                   Book Now
@@ -186,7 +184,7 @@ export default function TrainingPrograms() {
           <motion.div
             variants={cardVariants}
             className="group cursor-pointer"
-            onClick={scrollToContact}
+            onClick={openModal}
           >
             <div
               className="h-full min-h-[300px] rounded-2xl flex flex-col items-center justify-center gap-4 border-2 border-dashed border-gold-500/25 transition-all duration-400 hover:border-gold-500/50 hover:bg-gold-500/5 p-8 text-center"
