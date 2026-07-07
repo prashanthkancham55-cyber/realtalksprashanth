@@ -139,7 +139,7 @@ export default function Hero() {
 
       {/* ── Left content ── */}
       <div className="relative z-10 min-h-screen flex flex-col justify-center">
-        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-28 lg:pt-24 pb-16">
+        <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 pt-36 lg:pt-32 pb-16">
           <div className="lg:max-w-[52%]">
 
             {/* Badge row */}

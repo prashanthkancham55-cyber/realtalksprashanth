@@ -46,21 +46,25 @@ export default function Header() {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between h-16 md:h-20 px-4 sm:px-6 lg:px-8">
 
-        {/* Logo — 15-20% larger */}
+        {/* Logo */}
         <button
           onClick={() => scrollTo('#home')}
           className="group flex-shrink-0"
           aria-label="Real Talks Prashanth — Home"
         >
-          <Image
-            src="/images/Untitled_design_(7).png"
-            alt="Real Talks Prashanth"
-            height={62}
-            width={340}
-            className="h-[46px] w-auto md:h-[62px] object-contain transition-opacity duration-300 group-hover:opacity-85"
-            style={{ mixBlendMode: 'screen' }}
-            priority
-          />
+          <div
+            className="rounded-xl px-2.5 py-1.5 transition-all duration-300 group-hover:opacity-90"
+            style={{ background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 16px rgba(0,0,0,0.35)' }}
+          >
+            <Image
+              src="/images/ChatGPT_Image_Jul_6,_2026,_07_29_03_PM.png"
+              alt="Real Talks Prashanth"
+              height={52}
+              width={240}
+              className="h-[38px] w-auto md:h-[48px] object-contain"
+              priority
+            />
+          </div>
         </button>
 
         {/* Desktop Nav — increased spacing */}
@@ -123,7 +127,7 @@ export default function Header() {
                 transition={{ delay: navLinks.length * 0.07 }}
               >
                 <button
-                  onClick={() => scrollTo('#contact')}
+                  onClick={() => { setMobileOpen(false); openModal(); }}
                   className="btn-gold flex items-center justify-center gap-2 py-3 rounded-full text-sm w-full"
                 >
                   <Phone className="w-4 h-4" />

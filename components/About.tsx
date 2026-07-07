@@ -49,7 +49,8 @@ export default function About() {
                   fill
                   className="object-cover"
                   style={{ objectPosition: 'center 10%' }}
-                  quality={90}
+                  quality={85}
+                  loading="lazy"
                 />
                 <div className="absolute inset-0" style={{
                   background: 'linear-gradient(0deg, rgba(5,11,24,0.4) 0%, transparent 50%)'
