@@ -94,19 +94,15 @@ export default function Footer() {
 
           {/* ── Brand ── */}
           <div className="sm:col-span-2 lg:col-span-1 flex flex-col gap-5">
-            <div
-              className="inline-block rounded-xl px-2.5 py-1.5"
-              style={{ background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 12px rgba(0,0,0,0.3)' }}
-            >
-              <Image
-                src="/images/ChatGPT_Image_Jul_6,_2026,_07_29_03_PM.png"
-                alt="Real Talks Prashanth"
-                height={44}
-                width={200}
-                className="h-10 w-auto object-contain"
-                loading="lazy"
-              />
-            </div>
+            <Image
+              src="/images/Untitled_design_(7) copy.png"
+              alt="Real Talks Prashanth"
+              height={48}
+              width={220}
+              className="h-11 w-auto object-contain"
+              style={{ mixBlendMode: 'screen' }}
+              loading="lazy"
+            />
             <p className="text-xs tracking-widest font-semibold" style={{ color: 'rgba(224,192,64,0.7)' }}>
               SPEAK • INSPIRE • TRANSFORM
             </p>

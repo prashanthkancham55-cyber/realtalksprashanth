@@ -75,9 +75,9 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/images/ChatGPT_Image_Jul_6,_2026,_07_29_03_PM.png', type: 'image/png' },
+      { url: '/images/Untitled_design_(7) copy.png', type: 'image/png' },
     ],
-    apple: '/images/ChatGPT_Image_Jul_6,_2026,_07_29_03_PM.png',
+    apple: '/images/Untitled_design_(7) copy.png',
   },
   verification: {
     google: 'google-site-verification',

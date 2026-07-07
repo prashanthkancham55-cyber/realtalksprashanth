@@ -117,7 +117,7 @@ export default function FAQ() {
             {/* Stats */}
             <div className="flex gap-8 mt-12">
               {[
-                { value: '500+', label: 'Sessions Delivered' },
+                { value: '200+', label: 'Sessions Delivered' },
                 { value: '100%', label: 'Customized Programs' },
               ].map(({ value, label }) => (
                 <div key={label}>

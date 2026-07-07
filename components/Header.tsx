@@ -52,19 +52,15 @@ export default function Header() {
           className="group flex-shrink-0"
           aria-label="Real Talks Prashanth — Home"
         >
-          <div
-            className="rounded-xl px-2.5 py-1.5 transition-all duration-300 group-hover:opacity-90"
-            style={{ background: 'rgba(255,255,255,0.95)', boxShadow: '0 2px 16px rgba(0,0,0,0.35)' }}
-          >
-            <Image
-              src="/images/ChatGPT_Image_Jul_6,_2026,_07_29_03_PM.png"
-              alt="Real Talks Prashanth"
-              height={52}
-              width={240}
-              className="h-[38px] w-auto md:h-[48px] object-contain"
-              priority
-            />
-          </div>
+          <Image
+            src="/images/Untitled_design_(7) copy.png"
+            alt="Real Talks Prashanth"
+            height={56}
+            width={260}
+            className="h-[42px] w-auto md:h-[54px] object-contain transition-opacity duration-300 group-hover:opacity-85"
+            style={{ mixBlendMode: 'screen' }}
+            priority
+          />
         </button>
 
         {/* Desktop Nav — increased spacing */}
