@@ -147,32 +147,33 @@ const STICKY_TD: React.CSSProperties = {
 export default function TrainingTable({ trainings, onView, onEdit, onDelete }: Props) {
   return (
     /*
-     * overflow-x-auto must be on THIS element (the scroll ancestor)
-     * for position:sticky on the Actions column to work.
-     * The DS <TableContainer> uses overflow-hidden which clips sticky children.
+     * overflow-x-auto on the scroll ancestor lets position:sticky work on the
+     * Actions column. min-w-0 on the wrapper prevents it from overflowing its
+     * flex/grid parent. The table itself uses table-fixed + explicit column
+     * widths so it never exceeds the container at 1046px+ (1366×768 + sidebar).
      */
     <div
-      className="rounded-2xl overflow-x-auto"
+      className="rounded-2xl overflow-x-auto min-w-0"
       style={{
         background: 'rgba(255,255,255,0.02)',
         border:     '1px solid rgba(255,255,255,0.07)',
         boxShadow:  '0 4px 24px rgba(0,0,0,0.2)',
       }}
     >
-      <table className="w-full border-collapse">
+      <table className="w-full border-collapse" style={{ minWidth: '520px' }}>
 
         {/* Head */}
         <TableHead>
           <tr>
-            <Th className="w-16">Banner</Th>
+            <Th style={{ width: '60px' }}>Banner</Th>
             <Th>Training</Th>
-            <Th className="hidden md:table-cell">Trainer</Th>
-            <Th className="hidden lg:table-cell">Date</Th>
-            <Th className="hidden lg:table-cell">Mode</Th>
-            <Th className="hidden xl:table-cell">Price</Th>
-            <Th className="hidden xl:table-cell">Seats</Th>
-            <Th>Status</Th>
-            <Th className="text-right" style={STICKY_TH}>Actions</Th>
+            <Th className="hidden xl:table-cell" style={{ width: '140px' }}>Trainer</Th>
+            <Th className="hidden xl:table-cell" style={{ width: '110px' }}>Date</Th>
+            <Th className="hidden xl:table-cell" style={{ width: '110px' }}>Mode</Th>
+            <Th className="hidden 2xl:table-cell" style={{ width: '100px' }}>Price</Th>
+            <Th className="hidden 2xl:table-cell" style={{ width: '110px' }}>Seats</Th>
+            <Th style={{ width: '96px' }}>Status</Th>
+            <Th className="text-right" style={{ ...STICKY_TH, width: '116px' }}>Actions</Th>
           </tr>
         </TableHead>
 
@@ -208,9 +209,10 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
                 </td>
 
                 {/* Title + description */}
-                <td className="px-4 py-3.5 max-w-[220px]">
+                <td className="px-4 py-3.5" style={{ minWidth: '160px' }}>
                   <p className="text-white/85 text-sm font-semibold leading-snug truncate">{t.title}</p>
-                  <p className="text-white/35 text-xs mt-0.5 leading-snug line-clamp-1">{t.description}</p>
+                  <p className="text-white/35 text-xs mt-0.5 leading-snug line-clamp-1 xl:hidden">{t.category}</p>
+                  <p className="text-white/35 text-xs mt-0.5 leading-snug line-clamp-1 hidden xl:block">{t.description}</p>
                   <div className="flex flex-wrap gap-1 mt-1.5 xl:hidden">
                     <span className="flex items-center gap-0.5 text-[10px]" style={{ color: `${mm.color}99` }}>
                       <ModeIcon className="w-2.5 h-2.5" />{t.mode}
@@ -221,7 +223,7 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
                 </td>
 
                 {/* Trainer */}
-                <td className="px-5 py-3.5 hidden md:table-cell">
+                <td className="px-5 py-3.5 hidden xl:table-cell">
                   <div className="flex items-center gap-2">
                     <div
                       className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
@@ -238,13 +240,13 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
                 </td>
 
                 {/* Date */}
-                <td className="px-5 py-3.5 hidden lg:table-cell">
+                <td className="px-5 py-3.5 hidden xl:table-cell">
                   <p className="text-white/65 text-sm whitespace-nowrap">{formatDate(t.start_date)}</p>
                   <p className="text-white/30 text-[10px] mt-0.5">{t.duration || '—'}</p>
                 </td>
 
                 {/* Mode */}
-                <td className="px-5 py-3.5 hidden lg:table-cell">
+                <td className="px-5 py-3.5 hidden xl:table-cell">
                   <div className="flex items-center gap-1.5">
                     <div
                       className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -262,7 +264,7 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
                 </td>
 
                 {/* Price */}
-                <td className="px-5 py-3.5 hidden xl:table-cell">
+                <td className="px-5 py-3.5 hidden 2xl:table-cell">
                   <p className="text-white/75 text-sm font-semibold font-mono">
                     ₹{t.price.toLocaleString('en-IN')}
                   </p>
@@ -270,7 +272,7 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
                 </td>
 
                 {/* Seats */}
-                <td className="px-5 py-3.5 hidden xl:table-cell">
+                <td className="px-5 py-3.5 hidden 2xl:table-cell">
                   <SeatBar filled={t.available_seats} total={t.total_seats} />
                 </td>
 
@@ -284,7 +286,7 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
                 {/* ── Actions — sticky, always visible ─────────────────────── */}
                 <td className="px-4 py-3.5" style={STICKY_TD}>
                   {/* Desktop: three icon buttons always rendered */}
-                  <div className="hidden md:flex items-center justify-end gap-1.5">
+                  <div className="hidden sm:flex items-center justify-end gap-1.5">
                     <IconButton
                       icon={Eye}
                       variant="default"
@@ -309,7 +311,7 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
                   </div>
 
                   {/* Mobile: 3-dot dropdown */}
-                  <div className="md:hidden flex justify-end">
+                  <div className="sm:hidden flex justify-end">
                     <MobileActionMenu
                       onView={() => onView(t)}
                       onEdit={() => onEdit(t)}

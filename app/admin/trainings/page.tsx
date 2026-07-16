@@ -138,24 +138,24 @@ export default function TrainingsPage() {
         </nav>
 
         {/* Title row */}
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0">
             <div
               className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
               style={{ background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(255,255,255,0.08)' }}
             >
               <BookOpen className="w-5 h-5" style={{ color: '#60a5fa' }} />
             </div>
-            <div>
-              <h1 className="text-white text-2xl font-bold tracking-tight" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+            <div className="min-w-0">
+              <h1 className="text-white text-2xl font-bold tracking-tight truncate" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
                 Training Management
               </h1>
-              <p className="text-white/45 text-sm mt-0.5">Create and manage all corporate training programs.</p>
+              <p className="text-white/45 text-sm mt-0.5 truncate">Create and manage all corporate training programs.</p>
             </div>
           </div>
 
           {/* ── ADD TRAINING BUTTON ─────────────────────────────────────────────── */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-shrink-0">
             <Button variant="primary" icon={Plus} onClick={handleAddClick}>
               Add Training
             </Button>

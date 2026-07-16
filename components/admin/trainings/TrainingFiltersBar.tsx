@@ -29,9 +29,9 @@ export default function TrainingFiltersBar({
         border: '1px solid rgba(255,255,255,0.07)',
       }}
     >
-      <div className="flex flex-col sm:flex-row gap-3 flex-wrap">
-        {/* Search */}
-        <div className="flex-1 min-w-[200px]">
+      <div className="flex flex-col sm:flex-row gap-3 flex-wrap lg:flex-nowrap">
+        {/* Search — grows to fill available space */}
+        <div className="flex-1 min-w-0">
           <SearchInput
             value={search}
             onChange={(e) => onSearch(e.target.value)}
@@ -40,7 +40,7 @@ export default function TrainingFiltersBar({
         </div>
 
         {/* Status filter */}
-        <div className="w-full sm:w-40">
+        <div className="w-full sm:w-36 lg:w-32 flex-shrink-0">
           <Select
             value={status}
             onChange={(e) => onStatus(e.target.value)}
@@ -49,7 +49,7 @@ export default function TrainingFiltersBar({
         </div>
 
         {/* Category filter */}
-        <div className="w-full sm:w-44">
+        <div className="w-full sm:w-40 lg:w-36 flex-shrink-0">
           <Select
             value={category}
             onChange={(e) => onCategory(e.target.value)}
@@ -58,7 +58,7 @@ export default function TrainingFiltersBar({
         </div>
 
         {/* Mode filter */}
-        <div className="w-full sm:w-36">
+        <div className="w-full sm:w-32 lg:w-28 flex-shrink-0">
           <Select
             value={mode}
             onChange={(e) => onMode(e.target.value)}
@@ -72,7 +72,7 @@ export default function TrainingFiltersBar({
             onClick={onReset}
             className="text-white/35 text-xs hover:text-white/60 transition-colors px-2 whitespace-nowrap flex-shrink-0 self-center"
           >
-            Clear filters
+            Clear
           </button>
         )}
       </div>
