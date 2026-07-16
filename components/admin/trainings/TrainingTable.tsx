@@ -1,7 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { MapPin, Monitor, Users, Eye, Pencil, Trash2 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, Monitor, Users, Eye, Pencil, Trash2, MoreVertical } from 'lucide-react';
 import {
   TableContainer, TableHead, Th, TableBody, Td,
   Badge, IconButton,
@@ -52,6 +53,76 @@ function SeatBar({ filled, total }: { filled: number; total: number }) {
   );
 }
 
+// ── 3-dot mobile menu ─────────────────────────────────────────────────────────
+interface MobileMenuProps {
+  onView:   () => void;
+  onEdit:   () => void;
+  onDelete: () => void;
+}
+
+function MobileActionMenu({ onView, onEdit, onDelete }: MobileMenuProps) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const item = (label: string, Icon: React.ElementType, color: string, bg: string, action: () => void) => (
+    <button
+      key={label}
+      onClick={() => { setOpen(false); action(); }}
+      className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-xs font-medium transition-colors duration-150 text-left"
+      style={{ color, background: 'transparent' }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = bg; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
+    >
+      <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+      {label}
+    </button>
+  );
+
+  return (
+    <div ref={ref} className="relative">
+      <IconButton
+        icon={MoreVertical}
+        variant="default"
+        size="sm"
+        label="More actions"
+        onClick={() => setOpen((v) => !v)}
+      />
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.92, y: -4 }}
+            transition={{ duration: 0.15 }}
+            className="absolute right-0 top-8 z-50 min-w-[130px] p-1.5 rounded-xl flex flex-col"
+            style={{
+              background: 'rgba(10,19,37,0.97)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(16px)',
+            }}
+          >
+            {item('View',   Eye,    'rgba(255,255,255,0.7)', 'rgba(255,255,255,0.06)', onView)}
+            {item('Edit',   Pencil, 'rgba(255,255,255,0.7)', 'rgba(255,255,255,0.06)', onEdit)}
+            {item('Delete', Trash2, '#f87171',               'rgba(239,68,68,0.1)',    onDelete)}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────────
 export default function TrainingTable({ trainings, onView, onEdit, onDelete }: Props) {
   return (
     <TableContainer>
@@ -163,12 +234,22 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
                 <Badge variant={STATUS_VARIANT[t.status]} size="sm" dot>{t.status}</Badge>
               </td>
 
-              {/* Actions */}
+              {/* Actions — always visible on desktop, 3-dot menu on mobile */}
               <td className="px-4 py-3.5">
-                <div className="flex items-center justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                {/* Desktop: three icon buttons, always visible */}
+                <div className="hidden md:flex items-center justify-end gap-1.5">
                   <IconButton icon={Eye}    variant="default" size="sm" onClick={() => onView(t)}   label="View training" />
                   <IconButton icon={Pencil} variant="default" size="sm" onClick={() => onEdit(t)}   label="Edit training" />
                   <IconButton icon={Trash2} variant="danger"  size="sm" onClick={() => onDelete(t)} label="Delete training" />
+                </div>
+
+                {/* Mobile: 3-dot dropdown */}
+                <div className="md:hidden flex justify-end">
+                  <MobileActionMenu
+                    onView={() => onView(t)}
+                    onEdit={() => onEdit(t)}
+                    onDelete={() => onDelete(t)}
+                  />
                 </div>
               </td>
             </motion.tr>
