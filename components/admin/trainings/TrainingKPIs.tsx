@@ -20,7 +20,8 @@ export default function TrainingKPIs({ trainings }: Props) {
       icon:      BookOpen,
       iconColor: '#60a5fa',
       iconBg:    'rgba(96,165,250,0.1)',
-      trend:     { value: `${total}`, direction: 'flat' as const, label: 'Programs registered' },
+      trendUp:   total > 0,
+      trendLabel: 'Programs registered',
     },
     {
       label:     'Active',
@@ -29,7 +30,8 @@ export default function TrainingKPIs({ trainings }: Props) {
       icon:      Zap,
       iconColor: '#4ade80',
       iconBg:    'rgba(74,222,128,0.1)',
-      trend:     { value: `${active}`, direction: 'up' as const, label: 'In progress now' },
+      trendUp:   active > 0,
+      trendLabel: 'In progress now',
     },
     {
       label:     'Upcoming',
@@ -38,7 +40,8 @@ export default function TrainingKPIs({ trainings }: Props) {
       icon:      CalendarClock,
       iconColor: '#d4af37',
       iconBg:    'rgba(212,175,55,0.1)',
-      trend:     { value: `${upcoming}`, direction: 'flat' as const, label: 'In the pipeline' },
+      trendUp:   upcoming > 0,
+      trendLabel: 'In the pipeline',
     },
     {
       label:     'Completed',
@@ -47,7 +50,8 @@ export default function TrainingKPIs({ trainings }: Props) {
       icon:      CheckCircle2,
       iconColor: '#fb923c',
       iconBg:    'rgba(251,146,60,0.1)',
-      trend:     { value: `${completed}`, direction: 'up' as const, label: 'All time' },
+      trendUp:   completed > 0,
+      trendLabel: 'All time',
     },
   ];
 
@@ -55,8 +59,6 @@ export default function TrainingKPIs({ trainings }: Props) {
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
       {kpis.map((kpi, i) => {
         const Icon = kpi.icon;
-        const isUp = kpi.trend.direction === 'up';
-
         return (
           <motion.div
             key={kpi.label}
@@ -71,14 +73,10 @@ export default function TrainingKPIs({ trainings }: Props) {
               boxShadow: '0 4px 20px rgba(0,0,0,0.2)',
             }}
           >
-            {/* Hover glow */}
-            <div
-              className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+            <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
               style={{ background: `radial-gradient(ellipse at 20% 20%, ${kpi.iconBg} 0%, transparent 65%)` }}
             />
-            {/* Top accent */}
-            <div
-              className="absolute top-0 left-6 right-6 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+            <div className="absolute top-0 left-6 right-6 h-px opacity-0 group-hover:opacity-100 transition-opacity duration-500"
               style={{ background: `linear-gradient(90deg, transparent, ${kpi.iconColor}55, transparent)` }}
             />
 
@@ -92,13 +90,13 @@ export default function TrainingKPIs({ trainings }: Props) {
                 </div>
                 <div
                   className="flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-semibold"
-                  style={isUp
+                  style={kpi.trendUp
                     ? { color: '#4ade80', background: 'rgba(74,222,128,0.08)', border: '1px solid rgba(74,222,128,0.2)' }
                     : { color: 'rgba(255,255,255,0.3)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }
                   }
                 >
                   <TrendingUp className="w-2.5 h-2.5" />
-                  {kpi.trend.value}
+                  {kpi.value}
                 </div>
               </div>
 
@@ -112,7 +110,7 @@ export default function TrainingKPIs({ trainings }: Props) {
 
               <div className="flex items-center justify-between mt-3 pt-3 border-t" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
                 <span className="text-white/25 text-[10px]">{kpi.sub}</span>
-                <span className="text-[10px] font-medium" style={{ color: `${kpi.iconColor}99` }}>{kpi.trend.label}</span>
+                <span className="text-[10px] font-medium" style={{ color: `${kpi.iconColor}99` }}>{kpi.trendLabel}</span>
               </div>
             </div>
           </motion.div>

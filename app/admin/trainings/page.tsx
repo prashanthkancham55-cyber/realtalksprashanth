@@ -1,22 +1,30 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, Plus, LayoutGrid, LayoutList } from 'lucide-react';
-import PageHeader from '@/components/admin/PageHeader';
+import PageHeader         from '@/components/admin/PageHeader';
 import TrainingKPIs       from '@/components/admin/trainings/TrainingKPIs';
 import TrainingFiltersBar from '@/components/admin/trainings/TrainingFiltersBar';
 import TrainingTable      from '@/components/admin/trainings/TrainingTable';
 import TrainingCards      from '@/components/admin/trainings/TrainingCards';
 import TrainingViewModal  from '@/components/admin/trainings/TrainingViewModal';
+import TrainingFormModal  from '@/components/admin/trainings/TrainingFormModal';
 import {
-  Button, IconButton, EmptyState, Pagination,
-  SectionHeader, ConfirmDialog,
+  Button, EmptyState, Pagination, SectionHeader,
+  ConfirmDialog, ToastContainer, createToast,
+  TableSkeleton, StatsGridSkeleton,
+  type ToastItem,
 } from '@/components/ds';
-import { SAMPLE_TRAININGS, PER_PAGE, type Training } from '@/components/admin/trainings/data';
+import { deleteTraining, fetchTrainings } from '@/lib/trainingService';
+import { PER_PAGE, type Training } from '@/components/admin/trainings/data';
 
 type ViewMode = 'table' | 'cards';
 
 export default function TrainingsPage() {
+  // ── Data ─────────────────────────────────────────────────────────────────────
+  const [trainings, setTrainings] = useState<Training[]>([]);
+  const [loading,   setLoading]   = useState(true);
+
   // ── Filters ──────────────────────────────────────────────────────────────────
   const [search,   setSearch]   = useState('');
   const [status,   setStatus]   = useState('');
@@ -27,46 +35,97 @@ export default function TrainingsPage() {
 
   // ── Modals ───────────────────────────────────────────────────────────────────
   const [viewTarget,   setViewTarget]   = useState<Training | null>(null);
+  const [editTarget,   setEditTarget]   = useState<Training | null>(null);
+  const [formOpen,     setFormOpen]     = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Training | null>(null);
+  const [deleting,     setDeleting]     = useState(false);
 
-  // ── Derived data ─────────────────────────────────────────────────────────────
+  // ── Toasts ───────────────────────────────────────────────────────────────────
+  const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const toastTimeout = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const addToast = useCallback((t: ToastItem) => {
+    setToasts((prev) => [...prev, t]);
+    const id = setTimeout(() => setToasts((prev) => prev.filter((x) => x.id !== t.id)), 4500);
+    toastTimeout.current.push(id);
+  }, []);
+
+  const dismissToast = (id: string) => setToasts((prev) => prev.filter((t) => t.id !== id));
+
+  const notifySuccess = (msg: string) => addToast(createToast('success', msg));
+  const notifyError   = (msg: string) => addToast(createToast('error', 'Error', msg));
+
+  // ── Fetch ─────────────────────────────────────────────────────────────────────
+  const loadTrainings = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchTrainings();
+      setTrainings(data);
+    } catch (e: unknown) {
+      notifyError(e instanceof Error ? e.message : 'Failed to load trainings.');
+    } finally {
+      setLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => { loadTrainings(); }, [loadTrainings]);
+
+  // ── Filtered / paginated ──────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return SAMPLE_TRAININGS.filter((t) => {
+    return trainings.filter((t) => {
       const matchSearch =
         !q ||
-        t.name.toLowerCase().includes(q)     ||
-        t.trainer.toLowerCase().includes(q)  ||
-        t.location.toLowerCase().includes(q) ||
+        t.title.toLowerCase().includes(q)        ||
+        t.trainer_name.toLowerCase().includes(q) ||
+        t.location.toLowerCase().includes(q)     ||
         t.category.toLowerCase().includes(q);
       const matchStatus   = !status   || t.status   === status;
       const matchCategory = !category || t.category === category;
       const matchMode     = !mode     || t.mode     === mode;
       return matchSearch && matchStatus && matchCategory && matchMode;
     });
-  }, [search, status, category, mode]);
+  }, [trainings, search, status, category, mode]);
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE);
   const paginated  = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-
   const hasFilters = !!(search || status || category || mode);
 
-  const resetFilters = () => {
-    setSearch(''); setStatus(''); setCategory(''); setMode(''); setPage(1);
+  const resetFilters = () => { setSearch(''); setStatus(''); setCategory(''); setMode(''); setPage(1); };
+  const applyFilter  = (setter: (v: string) => void) => (v: string) => { setter(v); setPage(1); };
+
+  // ── CRUD handlers ─────────────────────────────────────────────────────────────
+  const handleAddClick = () => { setEditTarget(null); setFormOpen(true); };
+  const handleEdit     = (t: Training) => { setEditTarget(t); setFormOpen(true); };
+  const handleView     = (t: Training) => setViewTarget(t);
+  const handleDelete   = (t: Training) => setDeleteTarget(t);
+
+  const handleFormSaved = (msg: string) => {
+    notifySuccess(msg);
+    loadTrainings();
   };
 
-  const handleFilter = (setter: (v: string) => void) => (v: string) => {
-    setter(v);
-    setPage(1);
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteTraining(deleteTarget.id);
+      notifySuccess(`"${deleteTarget.title}" deleted.`);
+      setDeleteTarget(null);
+      loadTrainings();
+    } catch (e: unknown) {
+      notifyError(e instanceof Error ? e.message : 'Delete failed.');
+    } finally {
+      setDeleting(false);
+    }
   };
-
-  // ── Handlers (UI-only — no actual CRUD) ──────────────────────────────────────
-  const handleView   = (t: Training) => setViewTarget(t);
-  const handleEdit   = (_t: Training) => { /* UI-only: would open edit form in Phase 2 */ };
-  const handleDelete = (t: Training) => setDeleteTarget(t);
 
   return (
     <div className="flex flex-col gap-8 pb-6">
+
+      {/* Toast portal */}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {/* Page header */}
       <PageHeader
@@ -77,14 +136,14 @@ export default function TrainingsPage() {
         description="Create and manage all corporate training programs."
         breadcrumbs={[{ label: 'Training Management' }]}
         actions={
-          <Button variant="primary" icon={Plus}>
+          <Button variant="primary" icon={Plus} onClick={handleAddClick}>
             Add Training
           </Button>
         }
       />
 
       {/* KPI cards */}
-      <TrainingKPIs trainings={SAMPLE_TRAININGS} />
+      {loading ? <StatsGridSkeleton cols={4} count={4} /> : <TrainingKPIs trainings={trainings} />}
 
       {/* Filters bar */}
       <TrainingFiltersBar
@@ -92,10 +151,10 @@ export default function TrainingsPage() {
         status={status}
         category={category}
         mode={mode}
-        onSearch={handleFilter(setSearch)}
-        onStatus={handleFilter(setStatus)}
-        onCategory={handleFilter(setCategory)}
-        onMode={handleFilter(setMode)}
+        onSearch={applyFilter(setSearch)}
+        onStatus={applyFilter(setStatus)}
+        onCategory={applyFilter(setCategory)}
+        onMode={applyFilter(setMode)}
         onReset={resetFilters}
         hasFilters={hasFilters}
       />
@@ -104,8 +163,8 @@ export default function TrainingsPage() {
       <div>
         <div className="flex items-center justify-between mb-4 gap-4 flex-wrap">
           <SectionHeader
-            title={hasFilters ? `Filtered Results` : 'All Trainings'}
-            description={`${filtered.length} program${filtered.length !== 1 ? 's' : ''} found`}
+            title={hasFilters ? 'Filtered Results' : 'All Trainings'}
+            description={loading ? 'Loading…' : `${filtered.length} program${filtered.length !== 1 ? 's' : ''} found`}
             className="mb-0 flex-1"
           />
 
@@ -131,7 +190,9 @@ export default function TrainingsPage() {
         </div>
 
         {/* Content */}
-        {paginated.length === 0 ? (
+        {loading ? (
+          <TableSkeleton rows={5} cols={6} />
+        ) : paginated.length === 0 ? (
           <EmptyState
             icon={BookOpen}
             iconColor="#60a5fa"
@@ -142,12 +203,11 @@ export default function TrainingsPage() {
             }
             action={hasFilters
               ? <Button variant="outline" onClick={resetFilters}>Clear Filters</Button>
-              : <Button variant="primary" icon={Plus}>Add Training</Button>
+              : <Button variant="primary" icon={Plus} onClick={handleAddClick}>Add Training</Button>
             }
           />
         ) : view === 'table' ? (
           <>
-            {/* Desktop table */}
             <div className="hidden md:block">
               <TrainingTable
                 trainings={paginated}
@@ -156,7 +216,6 @@ export default function TrainingsPage() {
                 onDelete={handleDelete}
               />
             </div>
-            {/* Mobile cards */}
             <div className="md:hidden">
               <TrainingCards
                 trainings={paginated}
@@ -176,7 +235,7 @@ export default function TrainingsPage() {
         )}
 
         {/* Pagination */}
-        {filtered.length > PER_PAGE && (
+        {!loading && filtered.length > PER_PAGE && (
           <Pagination
             page={page}
             totalPages={totalPages}
@@ -188,19 +247,29 @@ export default function TrainingsPage() {
         )}
       </div>
 
-      {/* View modal */}
+      {/* Create / Edit form modal */}
+      <TrainingFormModal
+        open={formOpen}
+        onClose={() => { setFormOpen(false); setEditTarget(null); }}
+        onSaved={handleFormSaved}
+        onError={notifyError}
+        editData={editTarget}
+      />
+
+      {/* View detail modal */}
       <TrainingViewModal
         training={viewTarget}
         onClose={() => setViewTarget(null)}
       />
 
-      {/* Delete confirmation (UI-only) */}
+      {/* Delete confirmation */}
       <ConfirmDialog
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        onConfirm={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        loading={deleting}
         title="Delete training?"
-        description={`"${deleteTarget?.name ?? ''}" will be permanently removed. This is a UI preview — no data will be deleted.`}
+        description={`"${deleteTarget?.title ?? ''}" will be permanently removed from your database. This action cannot be undone.`}
         confirmLabel="Delete"
         variant="danger"
       />

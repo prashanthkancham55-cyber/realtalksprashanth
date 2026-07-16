@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Monitor, Users, Eye, Pencil, Trash2, Calendar, IndianRupee } from 'lucide-react';
 import { Badge, IconButton } from '@/components/ds';
 import type { Training, TrainingStatus } from './data';
+import { formatDate } from './data';
 import type { BadgeVariant } from '@/components/ds';
 
 interface Props {
@@ -14,10 +15,10 @@ interface Props {
 }
 
 const STATUS_VARIANT: Record<TrainingStatus, BadgeVariant> = {
+  Draft:     'draft',
   Active:    'active',
   Upcoming:  'upcoming',
   Completed: 'completed',
-  Draft:     'draft',
 };
 
 const MODE_META = {
@@ -26,14 +27,18 @@ const MODE_META = {
   Hybrid:  { icon: Users,   color: '#a78bfa' },
 };
 
+const FALLBACK_BANNER = 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400';
+
 export default function TrainingCards({ trainings, onView, onEdit, onDelete }: Props) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {trainings.map((t, i) => {
-        const mm = MODE_META[t.mode];
+        const mm = MODE_META[t.mode] ?? MODE_META.Offline;
         const ModeIcon = mm.icon;
-        const pct = t.seatsTotal > 0 ? Math.round((t.seatsFilled / t.seatsTotal) * 100) : 0;
+        const filled = t.total_seats - t.available_seats;
+        const pct = t.total_seats > 0 ? Math.round((filled / t.total_seats) * 100) : 0;
         const seatColor = pct >= 100 ? '#f87171' : pct >= 70 ? '#fb923c' : '#4ade80';
+        const banner = t.banner_url || FALLBACK_BANNER;
 
         return (
           <motion.div
@@ -51,20 +56,16 @@ export default function TrainingCards({ trainings, onView, onEdit, onDelete }: P
             {/* Banner */}
             <div className="relative h-36 overflow-hidden flex-shrink-0">
               <img
-                src={t.banner}
-                alt={t.name}
+                src={banner}
+                alt={t.title}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="lazy"
               />
-              {/* Gradient overlay */}
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(4,9,22,0.85) 0%, rgba(4,9,22,0.2) 50%, transparent 100%)' }} />
 
-              {/* Status badge on banner */}
               <div className="absolute top-3 left-3">
                 <Badge variant={STATUS_VARIANT[t.status]} size="sm" dot>{t.status}</Badge>
               </div>
-
-              {/* Category tag */}
               <div className="absolute top-3 right-3">
                 <span
                   className="text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-lg"
@@ -74,12 +75,11 @@ export default function TrainingCards({ trainings, onView, onEdit, onDelete }: P
                 </span>
               </div>
 
-              {/* Bottom info strip */}
               <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <ModeIcon className="w-3 h-3" style={{ color: mm.color }} />
                   <span className="text-xs font-medium" style={{ color: `${mm.color}dd` }}>{t.mode}</span>
-                  {t.location !== 'Virtual' && (
+                  {t.location && t.location !== 'Virtual' && (
                     <span className="text-white/40 text-xs">· {t.location}</span>
                   )}
                 </div>
@@ -89,27 +89,29 @@ export default function TrainingCards({ trainings, onView, onEdit, onDelete }: P
 
             {/* Body */}
             <div className="flex flex-col gap-3 p-4 flex-1">
-              {/* Title */}
               <div>
-                <h4 className="text-white/90 text-sm font-semibold leading-snug">{t.name}</h4>
+                <h4 className="text-white/90 text-sm font-semibold leading-snug">{t.title}</h4>
                 <p className="text-white/35 text-xs mt-0.5 leading-snug line-clamp-2">{t.description}</p>
               </div>
 
-              {/* Meta row */}
               <div className="flex items-center gap-3 text-xs text-white/40 flex-wrap">
                 <span className="flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />{t.date}
+                  <Calendar className="w-3 h-3" />{formatDate(t.start_date)}
                 </span>
-                <span className="flex items-center gap-1">
-                  <IndianRupee className="w-3 h-3" />{t.duration}
-                </span>
+                {t.duration && (
+                  <span className="flex items-center gap-1">
+                    <IndianRupee className="w-3 h-3" />{t.duration}
+                  </span>
+                )}
               </div>
 
               {/* Seat bar */}
               <div className="flex flex-col gap-1.5">
                 <div className="flex items-center justify-between">
                   <span className="text-white/30 text-[10px]">Seats filled</span>
-                  <span className="text-[10px] font-mono font-semibold" style={{ color: seatColor }}>{t.seatsFilled}/{t.seatsTotal} ({pct}%)</span>
+                  <span className="text-[10px] font-mono font-semibold" style={{ color: seatColor }}>
+                    {filled}/{t.total_seats} ({pct}%)
+                  </span>
                 </div>
                 <div className="h-1.5 w-full rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
                   <div
@@ -126,9 +128,9 @@ export default function TrainingCards({ trainings, onView, onEdit, onDelete }: P
                     className="w-6 h-6 rounded-lg flex items-center justify-center text-[9px] font-bold flex-shrink-0"
                     style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.08))', color: '#d4af37', border: '1px solid rgba(212,175,55,0.2)' }}
                   >
-                    P
+                    {t.trainer_name.charAt(0).toUpperCase()}
                   </div>
-                  <span className="text-white/45 text-xs">{t.trainer}</span>
+                  <span className="text-white/45 text-xs truncate max-w-[120px]">{t.trainer_name}</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <IconButton icon={Eye}    variant="default" size="sm" onClick={() => onView(t)}   label="View" />

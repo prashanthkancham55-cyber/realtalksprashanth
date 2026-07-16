@@ -3,10 +3,12 @@
 import { motion } from 'framer-motion';
 import { MapPin, Monitor, Users, Eye, Pencil, Trash2 } from 'lucide-react';
 import {
-  TableContainer, TableHead, Th, TableBody, Tr, Td,
+  TableContainer, TableHead, Th, TableBody, Td,
   Badge, IconButton,
 } from '@/components/ds';
 import type { Training, TrainingStatus } from './data';
+import { formatDate } from './data';
+import type { BadgeVariant } from '@/components/ds';
 
 interface Props {
   trainings: Training[];
@@ -15,11 +17,11 @@ interface Props {
   onDelete:  (t: Training) => void;
 }
 
-const STATUS_VARIANT: Record<TrainingStatus, import('@/components/ds').BadgeVariant> = {
+const STATUS_VARIANT: Record<TrainingStatus, BadgeVariant> = {
+  Draft:     'draft',
   Active:    'active',
   Upcoming:  'upcoming',
   Completed: 'completed',
-  Draft:     'draft',
 };
 
 const MODE_META = {
@@ -28,19 +30,22 @@ const MODE_META = {
   Hybrid:  { icon: Users,   color: '#a78bfa' },
 };
 
+const FALLBACK_BANNER = 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400';
+
 function SeatBar({ filled, total }: { filled: number; total: number }) {
-  const pct = total > 0 ? Math.round((filled / total) * 100) : 0;
-  const color = pct >= 100 ? '#f87171' : pct >= 70 ? '#fb923c' : '#4ade80';
+  const pct   = total > 0 ? Math.round(((total - filled) / total) * 100) : 0;
+  const used  = total - filled;
+  const color = pct <= 10 ? '#f87171' : pct <= 30 ? '#fb923c' : '#4ade80';
   return (
     <div className="flex flex-col gap-1 min-w-[80px]">
       <div className="flex items-center justify-between">
-        <span className="text-white/55 text-xs font-mono">{filled}/{total}</span>
-        <span className="text-[10px]" style={{ color: `${color}aa` }}>{pct}%</span>
+        <span className="text-white/55 text-xs font-mono">{used}/{total}</span>
+        <span className="text-[10px]" style={{ color: `${color}aa` }}>{pct}% left</span>
       </div>
       <div className="h-1.5 w-full rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
         <div
           className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${Math.min(pct, 100)}%`, background: color }}
+          style={{ width: `${Math.min(100 - pct, 100)}%`, background: color }}
         />
       </div>
     </div>
@@ -63,10 +68,11 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
           <Th className="text-right">Actions</Th>
         </tr>
       </TableHead>
-      <TableBody>
+      <tbody>
         {trainings.map((t, i) => {
-          const mm = MODE_META[t.mode];
+          const mm = MODE_META[t.mode] ?? MODE_META.Offline;
           const ModeIcon = mm.icon;
+          const banner = t.banner_url || FALLBACK_BANNER;
 
           return (
             <motion.tr
@@ -81,8 +87,8 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
               <td className="px-4 py-3.5 w-16">
                 <div className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0" style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
                   <img
-                    src={t.banner}
-                    alt={t.name}
+                    src={banner}
+                    alt={t.title}
                     className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                     loading="lazy"
                   />
@@ -91,15 +97,14 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
 
               {/* Name + desc */}
               <td className="px-4 py-3.5 max-w-[220px]">
-                <p className="text-white/85 text-sm font-semibold leading-snug truncate">{t.name}</p>
+                <p className="text-white/85 text-sm font-semibold leading-snug truncate">{t.title}</p>
                 <p className="text-white/35 text-xs mt-0.5 leading-snug line-clamp-1">{t.description}</p>
                 <div className="flex flex-wrap gap-1 mt-1.5 xl:hidden">
-                  {/* Inline metadata on smaller screens */}
                   <span className="flex items-center gap-0.5 text-[10px]" style={{ color: `${mm.color}99` }}>
                     <ModeIcon className="w-2.5 h-2.5" />{t.mode}
                   </span>
                   <span className="text-white/25 text-[10px]">·</span>
-                  <span className="text-white/30 text-[10px]">{t.date}</span>
+                  <span className="text-white/30 text-[10px]">{formatDate(t.start_date)}</span>
                 </div>
               </td>
 
@@ -110,16 +115,16 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
                     className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
                     style={{ background: 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.08))', color: '#d4af37', border: '1px solid rgba(212,175,55,0.2)' }}
                   >
-                    P
+                    {t.trainer_name.charAt(0).toUpperCase()}
                   </div>
-                  <span className="text-white/65 text-sm whitespace-nowrap">{t.trainer}</span>
+                  <span className="text-white/65 text-sm whitespace-nowrap">{t.trainer_name}</span>
                 </div>
               </Td>
 
               {/* Date */}
               <td className="px-5 py-3.5 hidden lg:table-cell">
-                <p className="text-white/65 text-sm whitespace-nowrap">{t.date}</p>
-                <p className="text-white/30 text-[10px] mt-0.5">{t.duration}</p>
+                <p className="text-white/65 text-sm whitespace-nowrap">{formatDate(t.start_date)}</p>
+                <p className="text-white/30 text-[10px] mt-0.5">{t.duration || '—'}</p>
               </td>
 
               {/* Mode */}
@@ -133,7 +138,7 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
                   </div>
                   <div>
                     <p className="text-sm" style={{ color: `${mm.color}cc` }}>{t.mode}</p>
-                    {t.location !== 'Virtual' && (
+                    {t.location && t.location !== 'Virtual' && (
                       <p className="text-white/30 text-[10px]">{t.location}</p>
                     )}
                   </div>
@@ -150,7 +155,7 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
 
               {/* Seats */}
               <td className="px-5 py-3.5 hidden xl:table-cell">
-                <SeatBar filled={t.seatsFilled} total={t.seatsTotal} />
+                <SeatBar filled={t.available_seats} total={t.total_seats} />
               </td>
 
               {/* Status */}
@@ -169,7 +174,7 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
             </motion.tr>
           );
         })}
-      </TableBody>
+      </tbody>
     </TableContainer>
   );
 }

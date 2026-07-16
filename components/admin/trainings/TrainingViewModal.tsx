@@ -3,6 +3,7 @@
 import { MapPin, Monitor, Users, Calendar, Clock, IndianRupee, Tag } from 'lucide-react';
 import { Modal, Badge } from '@/components/ds';
 import type { Training, TrainingStatus } from './data';
+import { formatDate } from './data';
 import type { BadgeVariant } from '@/components/ds';
 
 interface Props {
@@ -11,10 +12,10 @@ interface Props {
 }
 
 const STATUS_VARIANT: Record<TrainingStatus, BadgeVariant> = {
+  Draft:     'draft',
   Active:    'active',
   Upcoming:  'upcoming',
   Completed: 'completed',
-  Draft:     'draft',
 };
 
 const MODE_META = {
@@ -23,27 +24,34 @@ const MODE_META = {
   Hybrid:  { icon: Users,   color: '#a78bfa' },
 };
 
+const FALLBACK_BANNER = 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=800';
+
 export default function TrainingViewModal({ training, onClose }: Props) {
   if (!training) return null;
 
-  const mm = MODE_META[training.mode];
+  const mm = MODE_META[training.mode] ?? MODE_META.Offline;
   const ModeIcon = mm.icon;
-  const pct = training.seatsTotal > 0 ? Math.round((training.seatsFilled / training.seatsTotal) * 100) : 0;
+  const filled = training.total_seats - training.available_seats;
+  const pct = training.total_seats > 0 ? Math.round((filled / training.total_seats) * 100) : 0;
   const seatColor = pct >= 100 ? '#f87171' : pct >= 70 ? '#fb923c' : '#4ade80';
+  const banner = training.banner_url || FALLBACK_BANNER;
+  const tags = Array.isArray(training.tags) ? training.tags : [];
 
   return (
     <Modal open={!!training} onClose={onClose} size="lg">
       {/* Banner */}
-      <div className="relative h-48 rounded-2xl overflow-hidden mb-6 -mx-0">
-        <img src={training.banner} alt={training.name} className="w-full h-full object-cover" />
+      <div className="relative h-48 rounded-2xl overflow-hidden mb-6">
+        <img src={banner} alt={training.title} className="w-full h-full object-cover" />
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(4,9,22,0.9) 0%, rgba(4,9,22,0.3) 60%, transparent 100%)' }} />
         <div className="absolute bottom-4 left-4 right-4">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h2 className="text-white font-bold text-xl leading-snug" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
-                {training.name}
+                {training.title}
               </h2>
-              <p className="text-white/55 text-sm mt-0.5">{training.description}</p>
+              {training.description && (
+                <p className="text-white/55 text-sm mt-0.5 line-clamp-2">{training.description}</p>
+              )}
             </div>
             <Badge variant={STATUS_VARIANT[training.status]} dot>{training.status}</Badge>
           </div>
@@ -51,27 +59,30 @@ export default function TrainingViewModal({ training, onClose }: Props) {
       </div>
 
       {/* Tags */}
-      <div className="flex flex-wrap gap-1.5 mb-6">
-        {training.tags.map((tag) => (
-          <span
-            key={tag}
-            className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-lg"
-            style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.18)', color: '#d4af37' }}
-          >
-            <Tag className="w-2.5 h-2.5" />{tag}
-          </span>
-        ))}
-      </div>
+      {tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-6">
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-lg"
+              style={{ background: 'rgba(212,175,55,0.08)', border: '1px solid rgba(212,175,55,0.18)', color: '#d4af37' }}
+            >
+              <Tag className="w-2.5 h-2.5" />{tag}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Details grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
         {[
-          { icon: Calendar, label: 'Date', value: `${training.date}${training.endDate !== training.date ? ` – ${training.endDate}` : ''}`, color: '#60a5fa' },
-          { icon: Clock,    label: 'Duration', value: training.duration, color: '#4ade80' },
-          { icon: ModeIcon, label: 'Mode', value: training.mode, color: mm.color },
-          { icon: MapPin,   label: 'Location', value: training.location, color: '#fb923c' },
-          { icon: IndianRupee, label: 'Price', value: `₹${training.price.toLocaleString('en-IN')}`, color: '#d4af37' },
-          { icon: Tag,      label: 'Category', value: training.category, color: '#a78bfa' },
+          { icon: Calendar,   label: 'Start Date', value: formatDate(training.start_date), color: '#60a5fa' },
+          { icon: Calendar,   label: 'End Date',   value: formatDate(training.end_date),   color: '#60a5fa' },
+          { icon: Clock,      label: 'Duration',   value: training.duration || '—',        color: '#4ade80' },
+          { icon: ModeIcon,   label: 'Mode',       value: training.mode,                   color: mm.color  },
+          { icon: MapPin,     label: 'Location',   value: training.location || '—',        color: '#fb923c' },
+          { icon: IndianRupee,label: 'Price',       value: `₹${training.price.toLocaleString('en-IN')}`, color: '#d4af37' },
+          { icon: Tag,        label: 'Category',   value: training.category,               color: '#a78bfa' },
         ].map((item) => {
           const ItemIcon = item.icon;
           return (
@@ -99,19 +110,29 @@ export default function TrainingViewModal({ training, onClose }: Props) {
           className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0"
           style={{ background: 'linear-gradient(135deg, #d4af37, #f0c040)', color: '#0a1325' }}
         >
-          P
+          {training.trainer_name.charAt(0).toUpperCase()}
         </div>
         <div>
-          <p className="text-white/80 text-sm font-semibold">{training.trainer}</p>
+          <p className="text-white/80 text-sm font-semibold">{training.trainer_name}</p>
           <p className="text-white/35 text-xs">Lead Trainer · RealTalks Prashanth</p>
         </div>
+        {training.featured && (
+          <span
+            className="ml-auto text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-lg"
+            style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)', color: '#d4af37' }}
+          >
+            Featured
+          </span>
+        )}
       </div>
 
       {/* Seat occupancy */}
       <div className="p-4 rounded-2xl" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)' }}>
         <div className="flex items-center justify-between mb-2">
           <span className="text-white/45 text-xs font-medium">Seat Occupancy</span>
-          <span className="text-xs font-bold font-mono" style={{ color: seatColor }}>{training.seatsFilled}/{training.seatsTotal} seats ({pct}%)</span>
+          <span className="text-xs font-bold font-mono" style={{ color: seatColor }}>
+            {filled}/{training.total_seats} seats filled ({pct}%)
+          </span>
         </div>
         <div className="h-2 w-full rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
           <div
@@ -119,7 +140,7 @@ export default function TrainingViewModal({ training, onClose }: Props) {
             style={{ width: `${Math.min(pct, 100)}%`, background: seatColor, boxShadow: `0 0 8px ${seatColor}44` }}
           />
         </div>
-        <p className="text-white/25 text-[10px] mt-1.5">{training.seatsTotal - training.seatsFilled} seats remaining</p>
+        <p className="text-white/25 text-[10px] mt-1.5">{training.available_seats} seats remaining</p>
       </div>
     </Modal>
   );
