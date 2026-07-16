@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Plus, Image as ImageIcon, MessageSquare, ExternalLink, BookOpen, Mail, ArrowRight } from 'lucide-react';
+import { Plus, Image as ImageIcon, MessageSquare, ExternalLink, BookOpen, Mail, ArrowRight, Users } from 'lucide-react';
 
 interface Action {
   label: string;
@@ -48,10 +48,10 @@ const ACTIONS: Action[] = [
     borderColor: 'rgba(74,222,128,0.2)',
   },
   {
-    label: 'View Enquiries',
-    description: 'Respond to contact submissions',
-    href: '/admin/enquiries',
-    icon: Mail,
+    label: 'Student Registrations',
+    description: 'Manage training sign-ups',
+    href: '/admin/registrations',
+    icon: Users,
     iconColor: '#fb923c',
     gradient: 'linear-gradient(135deg, rgba(251,146,60,0.12), rgba(251,146,60,0.04))',
     borderColor: 'rgba(251,146,60,0.2)',

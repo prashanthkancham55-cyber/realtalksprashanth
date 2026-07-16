@@ -21,7 +21,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { id: 'dashboard',     label: 'Dashboard',            href: '/admin',               icon: LayoutDashboard, enabled: true },
   { id: 'trainings',     label: 'Training Management',  href: '/admin/trainings',     icon: BookOpen,        enabled: true },
-  { id: 'registrations', label: 'Student Registrations',href: '/admin/registrations', icon: Users,           enabled: false },
+  { id: 'registrations', label: 'Student Registrations',href: '/admin/registrations', icon: Users,           enabled: true },
   { id: 'payments',      label: 'Payments',             href: '/admin/payments',      icon: CreditCard,      enabled: false },
   { id: 'gallery',       label: 'Gallery',              href: '/admin/gallery',       icon: ImageIcon,       enabled: true },
   { id: 'testimonials',  label: 'Testimonials',         href: '/admin/testimonials',  icon: MessageSquare,   enabled: true },

@@ -23,6 +23,7 @@ interface Props {
   trainingCount:    number;
   upcomingCount:    number;
   totalRevenue:     number;
+  studentCount:     number;
 }
 
 export default function StatsGrid({
@@ -31,6 +32,7 @@ export default function StatsGrid({
   trainingCount,
   upcomingCount,
   totalRevenue,
+  studentCount,
 }: Props) {
   const revenueDisplay =
     totalRevenue >= 100_000
@@ -70,13 +72,17 @@ export default function StatsGrid({
     },
     {
       label:       'Total Students',
-      value:       '0',
-      sub:         'Registered learners',
+      value:       String(studentCount),
+      sub:         studentCount === 1 ? '1 registered learner' : `${studentCount} registered learners`,
       icon:        Users,
       iconColor:   '#fb923c',
       iconBg:      'rgba(251,146,60,0.08)',
       accentColor: 'rgba(251,146,60,0.12)',
-      trend: { value: '—', direction: 'flat', label: 'Awaiting Phase 2' },
+      trend: {
+        value:     studentCount > 0 ? `+${studentCount}` : '—',
+        direction: studentCount > 0 ? 'up' : 'flat',
+        label:     studentCount > 0 ? 'Registrations received' : 'No registrations yet',
+      },
     },
     {
       label:       'Revenue',

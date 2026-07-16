@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { getRegistrationTotalCount } from '@/lib/registrationService';
 import WelcomeHero       from '@/components/admin/dashboard/WelcomeHero';
 import StatsGrid         from '@/components/admin/dashboard/StatsGrid';
 import QuickActions      from '@/components/admin/dashboard/QuickActions';
@@ -39,6 +40,7 @@ interface DashboardStats {
   trainingCount:    number;
   upcomingCount:    number;
   totalRevenue:     number;
+  studentCount:     number;
   userEmail:        string;
 }
 
@@ -49,6 +51,7 @@ const EMPTY_STATS: DashboardStats = {
   trainingCount:    0,
   upcomingCount:    0,
   totalRevenue:     0,
+  studentCount:     0,
   userEmail:        '',
 };
 
@@ -68,6 +71,7 @@ export default function DashboardPage() {
         { count: upcomingTotal },
         { data: trainingData },
         { data: { session } },
+        studentTotal,
       ] = await Promise.all([
         supabase.from('gallery_images').select('*', { count: 'exact', head: true }),
         supabase.from('testimonials').select('*', { count: 'exact', head: true }),
@@ -84,6 +88,7 @@ export default function DashboardPage() {
           .select('price, total_seats, available_seats')
           .eq('status', 'Completed'),
         supabase.auth.getSession(),
+        getRegistrationTotalCount(),
       ]);
 
       // Revenue = sum of (price × seats_filled) for completed trainings
@@ -99,6 +104,7 @@ export default function DashboardPage() {
         trainingCount:    trainingTotal ?? 0,
         upcomingCount:    upcomingTotal ?? 0,
         totalRevenue,
+        studentCount:     studentTotal,
         userEmail:        session?.user?.email ?? 'Admin',
       });
       setLoading(false);
@@ -137,6 +143,7 @@ export default function DashboardPage() {
             trainingCount={stats.trainingCount}
             upcomingCount={stats.upcomingCount}
             totalRevenue={stats.totalRevenue}
+            studentCount={stats.studentCount}
           />
         )}
       </section>
