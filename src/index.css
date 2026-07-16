@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-navy-950 text-white font-sans antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.03);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.12);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(212,175,55,0.4);
+  }
+}
+
+@layer components {
+  .container-max {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-padding {
+    @apply py-20 lg:py-28;
+  }
+
+  .heading-display {
+    @apply font-display font-bold tracking-tight;
+  }
+
+  .gold-text {
+    background: linear-gradient(135deg, #f0c040, #d4af37);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gold-border {
+    border-color: rgba(212, 175, 55, 0.35);
+  }
+
+  .glass-card {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  .btn-gold {
+    background: linear-gradient(135deg, #f0c040, #d4af37);
+    color: #020810;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .btn-gold:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(212,175,55,0.3);
+  }
+
+  .btn-gold:active {
+    transform: scale(0.97);
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid rgba(212,175,55,0.4);
+    color: #d4af37;
+    transition: all 0.2s ease;
+  }
+
+  .btn-outline:hover {
+    background: rgba(212,175,55,0.08);
+  }
+
+  .section-label {
+    @apply text-xs font-bold uppercase tracking-widest;
+    color: #d4af37;
+    letter-spacing: 0.2em;
+  }
+
+  .program-card {
+    @apply rounded-2xl p-6 transition-all duration-300;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+
+  .program-card:hover {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(212,175,55,0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.3);
+  }
+
+  .admin-input {
+    @apply w-full text-sm text-white placeholder-white/25 outline-none transition-all duration-200;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 0.75rem;
+    padding: 0.625rem 1rem;
+  }
+
+  .admin-input:focus {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(212,175,55,0.5);
+    box-shadow: 0 0 0 3px rgba(212,175,55,0.12);
+  }
+
+  .admin-select {
+    @apply admin-input appearance-none cursor-pointer;
+    padding-right: 2.5rem;
+  }
+}
