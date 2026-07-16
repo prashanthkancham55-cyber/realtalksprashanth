@@ -11,10 +11,11 @@ import Topbar from './Topbar';
 import MobileDrawer from './MobileDrawer';
 
 const PAGE_TITLES: Record<string, string> = {
-  '/admin':            'Dashboard',
-  '/admin/gallery':    'Gallery',
-  '/admin/testimonials':'Testimonials',
-  '/admin/enquiries':  'Enquiries',
+  '/admin':              'Dashboard',
+  '/admin/trainings':    'Training Management',
+  '/admin/gallery':      'Gallery',
+  '/admin/testimonials': 'Testimonials',
+  '/admin/enquiries':    'Enquiries',
 };
 
 function getPageTitle(pathname: string): string {
