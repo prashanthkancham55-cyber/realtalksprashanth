@@ -8,6 +8,7 @@ import {
   FieldWrapper,
 } from '@/components/ds';
 import { supabase } from '@/lib/supabase';
+import { createTraining, updateTraining, validateTrainingForm } from '@/lib/trainingService';
 import {
   EMPTY_FORM, CATEGORY_FORM_OPTIONS, MODE_FORM_OPTIONS, STATUS_FORM_OPTIONS, slugify,
   type Training, type TrainingFormData,
@@ -138,46 +139,18 @@ export default function TrainingFormModal({ open, onClose, onSaved, onError, edi
       return next;
     });
 
-  const validate = (): string | null => {
-    if (!form.title.trim())        return 'Training title is required.';
-    if (!form.trainer_name.trim()) return 'Trainer name is required.';
-    if (!form.category)            return 'Category is required.';
-    if (!form.mode)                return 'Delivery mode is required.';
-    if (!form.start_date)          return 'Start date is required.';
-    if (!form.end_date)            return 'End date is required.';
-    if (form.end_date < form.start_date) return 'End date must be on or after start date.';
-    if (form.price < 0)            return 'Price cannot be negative.';
-    if (form.total_seats < 0)      return 'Total seats cannot be negative.';
-    if (form.available_seats < 0)  return 'Available seats cannot be negative.';
-    if (form.available_seats > form.total_seats) return 'Available seats cannot exceed total seats.';
-    return null;
-  };
-
   const handleSave = async () => {
-    const err = validate();
+    const err = validateTrainingForm(form);
     if (err) { setValidationErr(err); return; }
     setValidationErr('');
     setSaving(true);
 
     try {
-      const payload = {
-        ...form,
-        slug: form.slug.trim() || slugify(form.title),
-        tags: Array.isArray(form.tags) ? form.tags : [],
-      };
-
       if (isEdit && editData) {
-        const { error } = await supabase
-          .from('trainings')
-          .update(payload)
-          .eq('id', editData.id);
-        if (error) throw new Error(error.message);
+        await updateTraining(editData.id, form);
         onSaved('Training updated successfully!');
       } else {
-        const { error } = await supabase
-          .from('trainings')
-          .insert(payload);
-        if (error) throw new Error(error.message);
+        await createTraining(form);
         onSaved('Training created successfully!');
       }
       onClose();
@@ -193,7 +166,7 @@ export default function TrainingFormModal({ open, onClose, onSaved, onError, edi
     required,
     value: String(form[key] ?? ''),
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-      set(key, e.target.value as TrainingFormData[typeof key]),
+      set(key, (typeof form[key] === 'number' ? Number(e.target.value) : e.target.value) as TrainingFormData[typeof key]),
   });
 
   return (
