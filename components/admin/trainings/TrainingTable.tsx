@@ -28,30 +28,31 @@ const MODE_META = {
   Hybrid:  { icon: Users,   color: '#a78bfa' },
 };
 
-const FALLBACK_BANNER = 'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400';
+const FALLBACK_BANNER =
+  'https://images.pexels.com/photos/3184465/pexels-photo-3184465.jpeg?auto=compress&cs=tinysrgb&w=400';
 
 // ── Seat progress bar ─────────────────────────────────────────────────────────
 function SeatBar({ filled, total }: { filled: number; total: number }) {
-  const pct   = total > 0 ? Math.round(((total - filled) / total) * 100) : 0;
   const used  = total - filled;
-  const color = pct <= 10 ? '#f87171' : pct <= 30 ? '#fb923c' : '#4ade80';
+  const pct   = total > 0 ? Math.round((used / total) * 100) : 0;
+  const color = pct >= 90 ? '#f87171' : pct >= 70 ? '#fb923c' : '#4ade80';
   return (
     <div className="flex flex-col gap-1 min-w-[80px]">
       <div className="flex items-center justify-between">
         <span className="text-white/55 text-xs font-mono">{used}/{total}</span>
-        <span className="text-[10px]" style={{ color: `${color}aa` }}>{pct}% left</span>
+        <span className="text-[10px]" style={{ color: `${color}aa` }}>{100 - pct}% left</span>
       </div>
       <div className="h-1.5 w-full rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
         <div
           className="h-full rounded-full transition-all duration-500"
-          style={{ width: `${Math.min(100 - pct, 100)}%`, background: color }}
+          style={{ width: `${Math.min(pct, 100)}%`, background: color }}
         />
       </div>
     </div>
   );
 }
 
-// ── 3-dot mobile menu ─────────────────────────────────────────────────────────
+// ── Mobile 3-dot menu ─────────────────────────────────────────────────────────
 interface MobileMenuProps {
   onView:   () => void;
   onEdit:   () => void;
@@ -71,19 +72,19 @@ function MobileActionMenu({ onView, onEdit, onDelete }: MobileMenuProps) {
     return () => document.removeEventListener('mousedown', handler);
   }, [open]);
 
-  const menuItem = (
-    label: string,
-    Icon: React.ElementType,
-    color: string,
-    hoverBg: string,
-    action: () => void,
+  const item = (
+    label:    string,
+    Icon:     React.ElementType,
+    color:    string,
+    hoverBg:  string,
+    action:   () => void,
   ) => (
     <button
       key={label}
       onClick={() => { setOpen(false); action(); }}
-      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = hoverBg; }}
-      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; }}
-      className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-xs font-medium transition-colors duration-150 text-left"
+      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = hoverBg; }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+      className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-xs font-medium text-left"
       style={{ color, background: 'transparent' }}
     >
       <Icon className="w-3.5 h-3.5 flex-shrink-0" />
@@ -105,19 +106,19 @@ function MobileActionMenu({ onView, onEdit, onDelete }: MobileMenuProps) {
           <motion.div
             initial={{ opacity: 0, scale: 0.92, y: -4 }}
             animate={{ opacity: 1, scale: 1,    y: 0 }}
-            exit={{ opacity: 0, scale: 0.92, y: -4 }}
+            exit={  { opacity: 0, scale: 0.92, y: -4 }}
             transition={{ duration: 0.15 }}
             className="absolute right-0 top-8 z-50 min-w-[130px] p-1.5 rounded-xl flex flex-col"
             style={{
-              background:    'rgba(10,19,37,0.97)',
-              border:        '1px solid rgba(255,255,255,0.1)',
-              boxShadow:     '0 8px 32px rgba(0,0,0,0.5)',
-              backdropFilter:'blur(16px)',
+              background:     'rgba(10,19,37,0.97)',
+              border:         '1px solid rgba(255,255,255,0.1)',
+              boxShadow:      '0 8px 32px rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(16px)',
             }}
           >
-            {menuItem('View',   Eye,    'rgba(255,255,255,0.7)', 'rgba(255,255,255,0.06)', onView)}
-            {menuItem('Edit',   Pencil, 'rgba(255,255,255,0.7)', 'rgba(255,255,255,0.06)', onEdit)}
-            {menuItem('Delete', Trash2, '#f87171',               'rgba(239,68,68,0.1)',    onDelete)}
+            {item('View',   Eye,    'rgba(255,255,255,0.7)', 'rgba(255,255,255,0.06)', onView)}
+            {item('Edit',   Pencil, 'rgba(255,255,255,0.7)', 'rgba(255,255,255,0.06)', onEdit)}
+            {item('Delete', Trash2, '#f87171',               'rgba(239,68,68,0.1)',    onDelete)}
           </motion.div>
         )}
       </AnimatePresence>
@@ -125,31 +126,30 @@ function MobileActionMenu({ onView, onEdit, onDelete }: MobileMenuProps) {
   );
 }
 
-// ── Sticky header cell style ──────────────────────────────────────────────────
+// ── Sticky column styles ──────────────────────────────────────────────────────
 const STICKY_TH: React.CSSProperties = {
   position:   'sticky',
   right:       0,
-  background: 'rgba(255,255,255,0.025)',
-  boxShadow:  '-4px 0 10px rgba(0,0,0,0.3)',
   zIndex:      2,
+  background: 'rgba(14,22,44,0.98)',
+  boxShadow:  '-4px 0 10px rgba(0,0,0,0.3)',
 };
 
-// ── Sticky body cell style — matches table row hover bg ───────────────────────
 const STICKY_TD: React.CSSProperties = {
   position:   'sticky',
   right:       0,
-  background: 'rgba(6,12,24,0.98)',
-  boxShadow:  '-4px 0 10px rgba(0,0,0,0.3)',
   zIndex:      1,
+  background: 'rgba(6,10,22,0.98)',
+  boxShadow:  '-4px 0 10px rgba(0,0,0,0.3)',
 };
 
 // ── Table ─────────────────────────────────────────────────────────────────────
 export default function TrainingTable({ trainings, onView, onEdit, onDelete }: Props) {
   return (
     /*
-     * Custom container: rounded-2xl + overflow-x-auto at THIS level
-     * so CSS sticky positioning works inside the scroll ancestor.
-     * The DS TableContainer uses overflow-hidden which clips sticky children.
+     * overflow-x-auto must be on THIS element (the scroll ancestor)
+     * for position:sticky on the Actions column to work.
+     * The DS <TableContainer> uses overflow-hidden which clips sticky children.
      */
     <div
       className="rounded-2xl overflow-x-auto"
@@ -160,6 +160,8 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
       }}
     >
       <table className="w-full border-collapse">
+
+        {/* Head */}
         <TableHead>
           <tr>
             <Th className="w-16">Banner</Th>
@@ -170,16 +172,16 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
             <Th className="hidden xl:table-cell">Price</Th>
             <Th className="hidden xl:table-cell">Seats</Th>
             <Th>Status</Th>
-            {/* Sticky Actions header */}
             <Th className="text-right" style={STICKY_TH}>Actions</Th>
           </tr>
         </TableHead>
 
+        {/* Body */}
         <tbody>
           {trainings.map((t, i) => {
-            const mm = MODE_META[t.mode] ?? MODE_META.Offline;
+            const mm     = MODE_META[t.mode] ?? MODE_META.Offline;
             const ModeIcon = mm.icon;
-            const banner   = t.banner_url || FALLBACK_BANNER;
+            const banner = t.banner_url || FALLBACK_BANNER;
 
             return (
               <motion.tr
@@ -190,7 +192,7 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
                 className="border-b last:border-b-0 transition-colors duration-150 hover:bg-white/[0.018] group"
                 style={{ borderColor: 'rgba(255,255,255,0.045)' }}
               >
-                {/* Banner thumbnail */}
+                {/* Banner */}
                 <td className="px-4 py-3.5 w-16">
                   <div
                     className="w-12 h-12 rounded-xl overflow-hidden flex-shrink-0"
@@ -272,14 +274,16 @@ export default function TrainingTable({ trainings, onView, onEdit, onDelete }: P
                   <SeatBar filled={t.available_seats} total={t.total_seats} />
                 </td>
 
-                {/* Status badge */}
+                {/* Status */}
                 <td className="px-5 py-3.5">
-                  <Badge variant={STATUS_VARIANT[t.status]} size="sm" dot>{t.status}</Badge>
+                  <Badge variant={STATUS_VARIANT[t.status]} size="sm" dot>
+                    {t.status}
+                  </Badge>
                 </td>
 
-                {/* ── Sticky Actions column ─────────────────────────────────── */}
+                {/* ── Actions — sticky, always visible ─────────────────────── */}
                 <td className="px-4 py-3.5" style={STICKY_TD}>
-                  {/* Desktop: three icon buttons, always visible */}
+                  {/* Desktop: three icon buttons always rendered */}
                   <div className="hidden md:flex items-center justify-end gap-1.5">
                     <IconButton
                       icon={Eye}

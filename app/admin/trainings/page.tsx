@@ -1,8 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BookOpen, Plus, LayoutGrid, LayoutList } from 'lucide-react';
-import PageHeader         from '@/components/admin/PageHeader';
+import { BookOpen, Plus, LayoutGrid, LayoutList, Home, ChevronRight } from 'lucide-react';
 import TrainingKPIs       from '@/components/admin/trainings/TrainingKPIs';
 import TrainingFiltersBar from '@/components/admin/trainings/TrainingFiltersBar';
 import TrainingTable      from '@/components/admin/trainings/TrainingTable';
@@ -17,15 +16,16 @@ import {
 } from '@/components/ds';
 import { deleteTraining, fetchTrainings } from '@/lib/trainingService';
 import { PER_PAGE, type Training } from '@/components/admin/trainings/data';
+import Link from 'next/link';
 
 type ViewMode = 'table' | 'cards';
 
 export default function TrainingsPage() {
-  // ── Data ─────────────────────────────────────────────────────────────────────
+  // ── Data ──────────────────────────────────────────────────────────────────────
   const [trainings, setTrainings] = useState<Training[]>([]);
   const [loading,   setLoading]   = useState(true);
 
-  // ── Filters ──────────────────────────────────────────────────────────────────
+  // ── Filters ───────────────────────────────────────────────────────────────────
   const [search,   setSearch]   = useState('');
   const [status,   setStatus]   = useState('');
   const [category, setCategory] = useState('');
@@ -33,14 +33,14 @@ export default function TrainingsPage() {
   const [page,     setPage]     = useState(1);
   const [view,     setView]     = useState<ViewMode>('table');
 
-  // ── Modals ───────────────────────────────────────────────────────────────────
+  // ── Modals ────────────────────────────────────────────────────────────────────
   const [viewTarget,   setViewTarget]   = useState<Training | null>(null);
   const [editTarget,   setEditTarget]   = useState<Training | null>(null);
   const [formOpen,     setFormOpen]     = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Training | null>(null);
   const [deleting,     setDeleting]     = useState(false);
 
-  // ── Toasts ───────────────────────────────────────────────────────────────────
+  // ── Toasts ────────────────────────────────────────────────────────────────────
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const toastTimeout = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -51,7 +51,6 @@ export default function TrainingsPage() {
   }, []);
 
   const dismissToast = (id: string) => setToasts((prev) => prev.filter((t) => t.id !== id));
-
   const notifySuccess = (msg: string) => addToast(createToast('success', msg));
   const notifyError   = (msg: string) => addToast(createToast('error', 'Error', msg));
 
@@ -71,7 +70,7 @@ export default function TrainingsPage() {
 
   useEffect(() => { loadTrainings(); }, [loadTrainings]);
 
-  // ── Filtered / paginated ──────────────────────────────────────────────────────
+  // ── Filter + paginate ─────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return trainings.filter((t) => {
@@ -127,23 +126,48 @@ export default function TrainingsPage() {
       {/* Toast portal */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      {/* Page header */}
-      <PageHeader
-        icon={BookOpen}
-        iconColor="#60a5fa"
-        iconBg="rgba(96,165,250,0.1)"
-        title="Training Management"
-        description="Create and manage all corporate training programs."
-        breadcrumbs={[{ label: 'Training Management' }]}
-        actions={
-          <Button variant="primary" icon={Plus} onClick={handleAddClick}>
-            Add Training
-          </Button>
-        }
-      />
+      {/* ── Page header ─────────────────────────────────────────────────────────── */}
+      <div className="flex flex-col gap-3">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-1.5 text-xs">
+          <Link href="/admin" className="text-white/35 hover:text-white/60 transition-colors flex items-center gap-1">
+            <Home className="w-3 h-3" />
+          </Link>
+          <ChevronRight className="w-3 h-3 text-white/20" />
+          <span className="text-white/60 font-medium">Training Management</span>
+        </nav>
+
+        {/* Title row */}
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-4">
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(96,165,250,0.1)', border: '1px solid rgba(255,255,255,0.08)' }}
+            >
+              <BookOpen className="w-5 h-5" style={{ color: '#60a5fa' }} />
+            </div>
+            <div>
+              <h1 className="text-white text-2xl font-bold tracking-tight" style={{ fontFamily: 'Cormorant Garamond, serif' }}>
+                Training Management
+              </h1>
+              <p className="text-white/45 text-sm mt-0.5">Create and manage all corporate training programs.</p>
+            </div>
+          </div>
+
+          {/* ── ADD TRAINING BUTTON ─────────────────────────────────────────────── */}
+          <div className="flex items-center gap-3">
+            <Button variant="primary" icon={Plus} onClick={handleAddClick}>
+              Add Training
+            </Button>
+          </div>
+        </div>
+      </div>
 
       {/* KPI cards */}
-      {loading ? <StatsGridSkeleton cols={4} count={4} /> : <TrainingKPIs trainings={trainings} />}
+      {loading
+        ? <StatsGridSkeleton cols={4} count={4} />
+        : <TrainingKPIs trainings={trainings} />
+      }
 
       {/* Filters bar */}
       <TrainingFiltersBar
@@ -168,7 +192,7 @@ export default function TrainingsPage() {
             className="mb-0 flex-1"
           />
 
-          {/* View toggle */}
+          {/* View mode toggle */}
           <div
             className="flex rounded-xl overflow-hidden p-1 flex-shrink-0"
             style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
@@ -198,7 +222,7 @@ export default function TrainingsPage() {
             iconColor="#60a5fa"
             title={hasFilters ? 'No trainings match your filters' : 'No trainings yet'}
             description={hasFilters
-              ? 'Try adjusting your search or filters to find what you\'re looking for.'
+              ? "Try adjusting your search or filters to find what you're looking for."
               : 'Click "Add Training" to create your first training program.'
             }
             action={hasFilters
@@ -208,6 +232,7 @@ export default function TrainingsPage() {
           />
         ) : view === 'table' ? (
           <>
+            {/* Table view — desktop */}
             <div className="hidden md:block">
               <TrainingTable
                 trainings={paginated}
@@ -216,6 +241,7 @@ export default function TrainingsPage() {
                 onDelete={handleDelete}
               />
             </div>
+            {/* Card view — mobile */}
             <div className="md:hidden">
               <TrainingCards
                 trainings={paginated}
@@ -247,7 +273,7 @@ export default function TrainingsPage() {
         )}
       </div>
 
-      {/* Create / Edit form modal */}
+      {/* Create / Edit modal */}
       <TrainingFormModal
         open={formOpen}
         onClose={() => { setFormOpen(false); setEditTarget(null); }}
@@ -269,7 +295,7 @@ export default function TrainingsPage() {
         onConfirm={confirmDelete}
         loading={deleting}
         title="Delete training?"
-        description={`"${deleteTarget?.title ?? ''}" will be permanently removed from your database. This action cannot be undone.`}
+        description={`"${deleteTarget?.title ?? ''}" will be permanently removed. This action cannot be undone.`}
         confirmLabel="Delete"
         variant="danger"
       />
