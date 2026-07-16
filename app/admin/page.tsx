@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import WelcomeHero from '@/components/admin/dashboard/WelcomeHero';
-import StatsGrid from '@/components/admin/dashboard/StatsGrid';
-import QuickActions from '@/components/admin/dashboard/QuickActions';
-import ActivityTimeline from '@/components/admin/dashboard/ActivityTimeline';
+import WelcomeHero       from '@/components/admin/dashboard/WelcomeHero';
+import StatsGrid         from '@/components/admin/dashboard/StatsGrid';
+import QuickActions      from '@/components/admin/dashboard/QuickActions';
+import ActivityTimeline  from '@/components/admin/dashboard/ActivityTimeline';
 import UpcomingTrainings from '@/components/admin/dashboard/UpcomingTrainings';
 import DashboardInsights from '@/components/admin/dashboard/DashboardInsights';
 
@@ -32,30 +32,75 @@ function HeroSkeleton() {
   );
 }
 
+interface DashboardStats {
+  galleryCount:     number;
+  testimonialCount: number;
+  enquiryCount:     number;
+  trainingCount:    number;
+  upcomingCount:    number;
+  totalRevenue:     number;
+  userEmail:        string;
+}
+
+const EMPTY_STATS: DashboardStats = {
+  galleryCount:     0,
+  testimonialCount: 0,
+  enquiryCount:     0,
+  trainingCount:    0,
+  upcomingCount:    0,
+  totalRevenue:     0,
+  userEmail:        '',
+};
+
 export default function DashboardPage() {
-  const [galleryCount, setGalleryCount] = useState(0);
-  const [testimonialCount, setTestimonialCount] = useState(0);
-  const [enquiryCount, setEnquiryCount] = useState(0);
-  const [userEmail, setUserEmail] = useState('');
+  const [stats,   setStats]   = useState<DashboardStats>(EMPTY_STATS);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const init = async () => {
+      const today = new Date().toISOString().slice(0, 10);
+
       const [
         { count: gc },
         { count: tc },
         { count: ec },
+        { count: trainingTotal },
+        { count: upcomingTotal },
+        { data: trainingData },
         { data: { session } },
       ] = await Promise.all([
         supabase.from('gallery_images').select('*', { count: 'exact', head: true }),
         supabase.from('testimonials').select('*', { count: 'exact', head: true }),
         supabase.from('contact_enquiries').select('*', { count: 'exact', head: true }),
+        supabase.from('trainings').select('*', { count: 'exact', head: true }),
+        supabase
+          .from('trainings')
+          .select('*', { count: 'exact', head: true })
+          .gte('start_date', today)
+          .in('status', ['Active', 'Upcoming']),
+        // Fetch price × (total_seats - available_seats) to compute revenue
+        supabase
+          .from('trainings')
+          .select('price, total_seats, available_seats')
+          .eq('status', 'Completed'),
         supabase.auth.getSession(),
       ]);
-      setGalleryCount(gc ?? 0);
-      setTestimonialCount(tc ?? 0);
-      setEnquiryCount(ec ?? 0);
-      setUserEmail(session?.user?.email ?? 'Admin');
+
+      // Revenue = sum of (price × seats_filled) for completed trainings
+      const totalRevenue = (trainingData ?? []).reduce(
+        (sum, t) => sum + (t.price * (t.total_seats - t.available_seats)),
+        0,
+      );
+
+      setStats({
+        galleryCount:     gc ?? 0,
+        testimonialCount: tc ?? 0,
+        enquiryCount:     ec ?? 0,
+        trainingCount:    trainingTotal ?? 0,
+        upcomingCount:    upcomingTotal ?? 0,
+        totalRevenue,
+        userEmail:        session?.user?.email ?? 'Admin',
+      });
       setLoading(false);
     };
     init();
@@ -67,10 +112,10 @@ export default function DashboardPage() {
       {/* 1. Welcome Hero */}
       {loading ? <HeroSkeleton /> : (
         <WelcomeHero
-          userEmail={userEmail}
-          galleryCount={galleryCount}
-          testimonialCount={testimonialCount}
-          enquiryCount={enquiryCount}
+          userEmail={stats.userEmail}
+          galleryCount={stats.galleryCount}
+          testimonialCount={stats.testimonialCount}
+          enquiryCount={stats.enquiryCount}
         />
       )}
 
@@ -86,7 +131,13 @@ export default function DashboardPage() {
           <p className="text-white/30 text-xs mt-0.5">Live metrics across your platform</p>
         </div>
         {loading ? <StatsSkeleton /> : (
-          <StatsGrid galleryCount={galleryCount} testimonialCount={testimonialCount} />
+          <StatsGrid
+            galleryCount={stats.galleryCount}
+            testimonialCount={stats.testimonialCount}
+            trainingCount={stats.trainingCount}
+            upcomingCount={stats.upcomingCount}
+            totalRevenue={stats.totalRevenue}
+          />
         )}
       </section>
 
@@ -95,7 +146,7 @@ export default function DashboardPage() {
 
       {/* 4 + 5. Two-column layout on large screens */}
       <div className="grid xl:grid-cols-[1fr_420px] gap-10">
-        {/* Upcoming Trainings */}
+        {/* Upcoming Trainings — self-fetches live data */}
         <UpcomingTrainings />
         {/* Activity Timeline */}
         <ActivityTimeline />
