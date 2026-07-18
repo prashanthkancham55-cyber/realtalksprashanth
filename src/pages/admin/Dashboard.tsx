@@ -246,6 +246,16 @@ export default function Dashboard() {
   }, []);
 
   /* ── Hero helpers ─────────────────────────────────────────────────────── */
+  const [liveTime, setLiveTime] = useState(() =>
+    new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true }),
+  );
+  useEffect(() => {
+    const id = setInterval(() =>
+      setLiveTime(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })),
+    60_000);
+    return () => clearInterval(id);
+  }, []);
+
   const hour = new Date().getHours();
   const greeting =
     hour >= 5 && hour < 12 ? { text: 'Good Morning',   Icon: Sun,    color: '#f0c040' } :
@@ -297,7 +307,7 @@ export default function Dashboard() {
             style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(212,175,55,0.12) 50%, transparent 95%)' }} />
         </div>
 
-        <div className="relative z-10 p-6 md:p-8 lg:p-10">
+        <div className="relative z-10 p-5 md:p-6 lg:p-8">
 
           {/* Top: identity + live stats */}
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
@@ -317,6 +327,7 @@ export default function Dashboard() {
                 <span className="text-xs font-semibold tracking-[0.18em] uppercase" style={{ color: greeting.color }}>
                   {greeting.text}
                 </span>
+                <span className="text-white/30 text-xs tabular-nums">{liveTime}</span>
               </motion.div>
 
               {/* Name heading */}
@@ -330,7 +341,7 @@ export default function Dashboard() {
                   Welcome back
                 </p>
                 <h1
-                  className="text-4xl md:text-5xl lg:text-[3.4rem] font-bold text-white leading-[1.08] tracking-tight"
+                  className="text-3xl md:text-4xl lg:text-[2.9rem] font-bold text-white leading-[1.08] tracking-tight"
                   style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}
                 >
                   Prashanth
@@ -356,9 +367,9 @@ export default function Dashboard() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.34, duration: 0.6 }}
-                className="text-white/35 text-sm leading-[1.8] max-w-[38ch] mb-7"
+                className="text-white/35 text-sm leading-[1.8] max-w-[38ch] mb-5"
               >
-                Your training is transforming lives. Keep leading with purpose.
+                Founder &amp; Corporate Trainer
               </motion.p>
 
               {/* Date */}
@@ -366,7 +377,7 @@ export default function Dashboard() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.44 }}
-                className="flex items-center gap-2.5"
+                className="flex items-center gap-2.5 mb-0"
               >
                 <div className="w-4 h-px" style={{ background: 'linear-gradient(90deg, rgba(212,175,55,0.6), transparent)' }} />
                 <span className="text-white/25 text-[11px] tracking-wide">{today}</span>
@@ -401,27 +412,28 @@ export default function Dashboard() {
                     initial={{ opacity: 0, scale: 0.88 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.35 + i * 0.08, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                    whileHover={{ y: -3, transition: { duration: 0.18 } }}
-                    className="flex flex-col items-center px-5 py-4 rounded-2xl cursor-default"
+                    whileHover={{ y: -4, scale: 1.04, transition: { duration: 0.18 } }}
+                    className="flex flex-col items-center px-6 py-5 rounded-2xl cursor-default"
                     style={{
-                      background: 'rgba(255,255,255,0.035)',
-                      border: '1px solid rgba(255,255,255,0.09)',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
-                      minWidth: 76,
+                      background: 'rgba(255,255,255,0.06)',
+                      border: `1px solid ${s.color}30`,
+                      backdropFilter: 'blur(20px)',
+                      WebkitBackdropFilter: 'blur(20px)',
+                      boxShadow: `0 12px 40px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.08), 0 0 0 1px ${s.color}12`,
+                      minWidth: 88,
                     }}
                   >
                     {loading ? (
-                      <div className="w-8 h-7 rounded animate-pulse" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                      <div className="w-10 h-8 rounded animate-pulse" style={{ background: 'rgba(255,255,255,0.08)' }} />
                     ) : (
                       <span
-                        className="text-3xl font-bold leading-none tabular-nums"
+                        className="text-4xl font-bold leading-none tabular-nums"
                         style={{ fontFamily: 'Cormorant Garamond, serif', color: s.color }}
                       >
                         {s.value}
                       </span>
                     )}
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] mt-2" style={{ color: `${s.color}90` }}>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] mt-2.5" style={{ color: `${s.color}80` }}>
                       {s.label}
                     </span>
                   </motion.div>
@@ -448,7 +460,7 @@ export default function Dashboard() {
           </div>
 
           {/* Divider */}
-          <div className="my-8" style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.15) 30%, rgba(212,175,55,0.15) 70%, transparent)' }} />
+          <div className="my-5" style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.15) 30%, rgba(212,175,55,0.15) 70%, transparent)' }} />
 
           {/* Quick actions */}
           <motion.div
@@ -491,7 +503,7 @@ export default function Dashboard() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.75 }}
-            className="flex items-center justify-between mt-8 pt-5 flex-wrap gap-3"
+            className="flex items-center justify-between mt-5 pt-4 flex-wrap gap-3"
             style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
           >
             <div className="flex items-center gap-5 flex-wrap">

@@ -234,7 +234,7 @@ export default function AdminShell({ children }: AdminShellProps) {
   return (
     <div className="flex min-h-screen" style={{ background: '#020810' }}>
       {/* Desktop Sidebar */}
-      <div className="hidden lg:flex lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:z-40">
+      <div className="hidden lg:flex lg:fixed lg:inset-y-0 lg:left-0 lg:w-[280px] lg:z-40">
         <AdminSidebar userEmail={userEmail} onSignOut={handleSignOut} />
       </div>
 
@@ -258,7 +258,7 @@ export default function AdminShell({ children }: AdminShellProps) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', stiffness: 320, damping: 35 }}
-              className="fixed inset-y-0 left-0 z-50 w-64 lg:hidden"
+              className="fixed inset-y-0 left-0 z-50 w-[280px] lg:hidden"
             >
               <AdminSidebar
                 userEmail={userEmail}
@@ -271,7 +271,7 @@ export default function AdminShell({ children }: AdminShellProps) {
       </AnimatePresence>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0 lg:ml-64">
+      <div className="flex-1 flex flex-col min-w-0 lg:ml-[280px]">
         {/* Topbar */}
         <header
           className="sticky top-0 z-30 flex items-center gap-4 px-4 lg:px-8 py-4"
