@@ -9,6 +9,8 @@ import {
   Star,
   Mail,
   ArrowRight,
+  Sun, Sunset, Moon,
+  ArrowUpRight, Activity, Sparkles,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { formatRegistrationDate } from '../../lib/registrationService';
@@ -243,20 +245,282 @@ export default function Dashboard() {
     fetchDashboard();
   }, []);
 
+  /* ── Hero helpers ─────────────────────────────────────────────────────── */
+  const hour = new Date().getHours();
+  const greeting =
+    hour >= 5 && hour < 12 ? { text: 'Good Morning',   Icon: Sun,    color: '#f0c040' } :
+    hour >= 12 && hour < 17 ? { text: 'Good Afternoon', Icon: Sunset, color: '#fb923c' } :
+                               { text: 'Good Evening',   Icon: Moon,   color: '#93c5fd' };
+
+  const today = new Date().toLocaleDateString('en-IN', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  });
+
+  const heroStats = [
+    { label: 'Trainings',     value: stats.totalTrainings,       color: '#60a5fa' },
+    { label: 'Students',      value: stats.studentRegistrations,  color: '#34d399' },
+    { label: 'Enquiries',     value: stats.enquiries,             color: '#fb923c' },
+  ];
+
+  const heroActions = [
+    { label: 'Add Training',        href: '/admin/trainings',     Icon: BookOpen,  color: '#60a5fa', border: 'rgba(96,165,250,0.25)',  bg: 'rgba(96,165,250,0.10)'  },
+    { label: 'View Registrations',  href: '/admin/registrations', Icon: Users,     color: '#34d399', border: 'rgba(52,211,153,0.25)',  bg: 'rgba(52,211,153,0.10)'  },
+    { label: 'Manage Gallery',      href: '/admin/gallery',       Icon: Image,     color: '#d4af37', border: 'rgba(212,175,55,0.25)',  bg: 'rgba(212,175,55,0.10)'  },
+  ];
+
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      {/* Header */}
-      <div>
-        <h1
-          className="text-3xl font-semibold text-white"
-          style={{ fontFamily: 'Cormorant Garamond, serif' }}
-        >
-          Dashboard
-        </h1>
-        <p className="text-sm text-white/40 mt-1">
-          Welcome back — here's an overview of your platform.
-        </p>
-      </div>
+
+      {/* ── HERO ─────────────────────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+        className="relative rounded-3xl overflow-hidden"
+        style={{
+          background:  'linear-gradient(140deg, #0a1628 0%, #070e1e 55%, #0d1a30 100%)',
+          border:      '1px solid rgba(212,175,55,0.14)',
+          boxShadow:   '0 40px 100px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.05)',
+        }}
+      >
+        {/* Atmosphere layers */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-24 -right-24 w-[480px] h-[480px] rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.13) 0%, transparent 62%)', filter: 'blur(2px)' }} />
+          <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(30,58,138,0.18) 0%, transparent 65%)' }} />
+          <div className="absolute inset-0 opacity-[0.022]"
+            style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.9) 1px, transparent 1px)', backgroundSize: '36px 36px' }} />
+          <div className="absolute top-0 left-0 right-0 h-px"
+            style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(212,175,55,0.55) 50%, transparent 95%)' }} />
+          <div className="absolute bottom-0 left-0 right-0 h-px"
+            style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(212,175,55,0.12) 50%, transparent 95%)' }} />
+        </div>
+
+        <div className="relative z-10 p-6 md:p-8 lg:p-10">
+
+          {/* Top: identity + live stats */}
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-8">
+
+            {/* LEFT */}
+            <div className="flex-1 min-w-0">
+
+              {/* Greeting pill */}
+              <motion.div
+                initial={{ opacity: 0, x: -18 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.12, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5"
+                style={{ background: `${greeting.color}10`, border: `1px solid ${greeting.color}30` }}
+              >
+                <greeting.Icon className="w-3.5 h-3.5 flex-shrink-0" style={{ color: greeting.color }} />
+                <span className="text-xs font-semibold tracking-[0.18em] uppercase" style={{ color: greeting.color }}>
+                  {greeting.text}
+                </span>
+              </motion.div>
+
+              {/* Name heading */}
+              <motion.div
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                className="mb-4"
+              >
+                <p className="text-white/40 text-[11px] font-semibold uppercase tracking-[0.14em] mb-1.5">
+                  Welcome back
+                </p>
+                <h1
+                  className="text-4xl md:text-5xl lg:text-[3.4rem] font-bold text-white leading-[1.08] tracking-tight"
+                  style={{ fontFamily: 'Cormorant Garamond, Georgia, serif' }}
+                >
+                  Prashanth
+                  <span
+                    className="block mt-1"
+                    style={{
+                      background: 'linear-gradient(130deg, #f5d060 0%, #d4af37 45%, #b8962e 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      fontStyle: 'italic',
+                      fontWeight: 400,
+                      fontSize: '0.58em',
+                      letterSpacing: '0.02em',
+                    }}
+                  >
+                    RealTalks Platform
+                  </span>
+                </h1>
+              </motion.div>
+
+              {/* Subtitle */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.34, duration: 0.6 }}
+                className="text-white/35 text-sm leading-[1.8] max-w-[38ch] mb-7"
+              >
+                Your training is transforming lives. Keep leading with purpose.
+              </motion.p>
+
+              {/* Date */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.44 }}
+                className="flex items-center gap-2.5"
+              >
+                <div className="w-4 h-px" style={{ background: 'linear-gradient(90deg, rgba(212,175,55,0.6), transparent)' }} />
+                <span className="text-white/25 text-[11px] tracking-wide">{today}</span>
+              </motion.div>
+            </div>
+
+            {/* RIGHT: live badge + glassmorphism stat cards */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.28, duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              className="flex flex-col gap-3 lg:items-end w-full lg:w-auto"
+            >
+              {/* Platform live */}
+              <div
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl self-start lg:self-auto"
+                style={{ background: 'rgba(52,211,153,0.07)', border: '1px solid rgba(52,211,153,0.18)' }}
+              >
+                <div className="relative w-2 h-2 flex-shrink-0">
+                  <div className="absolute inset-0 rounded-full bg-emerald-400 animate-ping opacity-50" />
+                  <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                </div>
+                <Activity className="w-3 h-3 text-emerald-400" />
+                <span className="text-emerald-300 text-xs font-semibold tracking-wide">Platform Live</span>
+              </div>
+
+              {/* Stat cards */}
+              <div className="flex gap-3">
+                {heroStats.map((s, i) => (
+                  <motion.div
+                    key={s.label}
+                    initial={{ opacity: 0, scale: 0.88 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.35 + i * 0.08, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                    whileHover={{ y: -3, transition: { duration: 0.18 } }}
+                    className="flex flex-col items-center px-5 py-4 rounded-2xl cursor-default"
+                    style={{
+                      background: 'rgba(255,255,255,0.035)',
+                      border: '1px solid rgba(255,255,255,0.09)',
+                      backdropFilter: 'blur(12px)',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.25)',
+                      minWidth: 76,
+                    }}
+                  >
+                    {loading ? (
+                      <div className="w-8 h-7 rounded animate-pulse" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                    ) : (
+                      <span
+                        className="text-3xl font-bold leading-none tabular-nums"
+                        style={{ fontFamily: 'Cormorant Garamond, serif', color: s.color }}
+                      >
+                        {s.value}
+                      </span>
+                    )}
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] mt-2" style={{ color: `${s.color}90` }}>
+                      {s.label}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* View live site */}
+              <a
+                href="/"
+                target="_blank"
+                rel="noreferrer"
+                className="group inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-semibold transition-all duration-200 hover:opacity-90 self-start lg:self-auto"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(212,175,55,0.14), rgba(212,175,55,0.06))',
+                  border: '1px solid rgba(212,175,55,0.22)',
+                  color: '#d4af37',
+                }}
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                View Live Site
+                <ArrowUpRight className="w-3 h-3 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </a>
+            </motion.div>
+          </div>
+
+          {/* Divider */}
+          <div className="my-8" style={{ height: 1, background: 'linear-gradient(90deg, transparent, rgba(212,175,55,0.15) 30%, rgba(212,175,55,0.15) 70%, transparent)' }} />
+
+          {/* Quick actions */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.55, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <p className="text-white/25 text-[10px] font-semibold uppercase tracking-[0.18em] mb-4">Quick Actions</p>
+            <div className="flex flex-wrap gap-3">
+              {heroActions.map((action, i) => (
+                <motion.div
+                  key={action.label}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 + i * 0.07, duration: 0.4 }}
+                  whileHover={{ y: -2, transition: { duration: 0.16 } }}
+                >
+                  <Link
+                    to={action.href}
+                    className="group inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl text-sm font-semibold transition-all duration-200"
+                    style={{
+                      background: action.bg,
+                      border: `1px solid ${action.border}`,
+                      color: action.color,
+                      backdropFilter: 'blur(8px)',
+                      boxShadow: `0 4px 16px ${action.color}12`,
+                    }}
+                  >
+                    <action.Icon className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
+                    {action.label}
+                    <ArrowUpRight className="w-3 h-3 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+
+          {/* Phase progress strip */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.75 }}
+            className="flex items-center justify-between mt-8 pt-5 flex-wrap gap-3"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
+          >
+            <div className="flex items-center gap-5 flex-wrap">
+              {[
+                { label: 'Gallery',       done: true  },
+                { label: 'Testimonials',  done: true  },
+                { label: 'Enquiries',     done: true  },
+                { label: 'Trainings',     done: true  },
+                { label: 'Payments',      done: false },
+                { label: 'Blogs',         done: false },
+              ].map((item) => (
+                <div key={item.label} className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                    style={{ background: item.done ? '#34d399' : 'rgba(255,255,255,0.12)' }} />
+                  <span className="text-[10px] font-medium"
+                    style={{ color: item.done ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.18)' }}>
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <div className="hidden sm:flex items-center gap-1.5">
+              <div className="w-5 h-px" style={{ background: 'linear-gradient(90deg, rgba(212,175,55,0.5), transparent)' }} />
+              <span className="text-[10px] text-white/20 tracking-wide">Phase 1 complete</span>
+            </div>
+          </motion.div>
+
+        </div>
+      </motion.div>
 
       {error && (
         <div
