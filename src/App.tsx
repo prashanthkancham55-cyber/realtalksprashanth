@@ -12,6 +12,8 @@ import AdminRegistrations from './pages/admin/AdminRegistrations';
 import AdminGallery from './pages/admin/AdminGallery';
 import AdminTestimonials from './pages/admin/AdminTestimonials';
 import AdminEnquiries from './pages/admin/AdminEnquiries';
+import AdminVideos from './pages/admin/AdminVideos';
+import VideosPage from './pages/public/VideosPage';
 
 export default function App() {
   return (
@@ -21,6 +23,7 @@ export default function App() {
         <Route element={<PublicLayout />}>
           <Route index element={<HomePage />} />
           <Route path="trainings" element={<TrainingsList />} />
+          <Route path="videos"    element={<VideosPage />} />
           <Route path="training/:slug" element={<TrainingDetail />} />
           <Route path="register/:slug" element={<RegisterPage />} />
         </Route>
@@ -36,6 +39,7 @@ export default function App() {
           <Route path="gallery" element={<AdminGallery />} />
           <Route path="testimonials" element={<AdminTestimonials />} />
           <Route path="enquiries" element={<AdminEnquiries />} />
+          <Route path="videos"    element={<AdminVideos />} />
         </Route>
 
         {/* ── Catch-all ─────────────────────────────────────────────── */}

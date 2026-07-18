@@ -1,10 +1,13 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { GraduationCap, TrendingUp, Crown, Flame, Building2, ArrowRight, CheckCircle2, Star, Award, Users, Quote, ChevronDown, Phone, Mail, MapPin, Send, Loader2 } from 'lucide-react';
+import { GraduationCap, TrendingUp, Crown, Flame, Building2, ArrowRight, CheckCircle2, Star, Award, Users, Quote, ChevronDown, Phone, Mail, MapPin, Send, Loader2, Play, Youtube } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Training } from '../../types/training';
 import { getPublicTrainings, getHeroTraining } from '../../lib/trainingService';
+import { getHomepageVideos } from '../../lib/videoService';
+import type { Video } from '../../types/video';
+import { buildEmbedUrl } from '../../types/video';
 import { supabase } from '../../lib/supabase';
 import DynamicHero from '../../components/public/DynamicHero';
 import UpcomingTrainings from '../../components/public/UpcomingTrainings';
@@ -66,6 +69,8 @@ export default function HomePage() {
   const [trainings,    setTrainings]    = useState<Training[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [gallery,      setGallery]      = useState<GalleryImage[]>([]);
+  const [videos,       setVideos]       = useState<Video[]>([]);
+  const [playingVideo, setPlayingVideo] = useState<Video | null>(null);
   const [openFaq,      setOpenFaq]      = useState<number | null>(null);
 
   // Contact form
@@ -80,11 +85,13 @@ export default function HomePage() {
       getPublicTrainings(),
       supabase.from('testimonials').select('*').order('created_at', { ascending: false }).limit(6),
       supabase.from('gallery_images').select('*').order('display_order').limit(12),
-    ]).then(([hero, pubs, { data: tests }, { data: imgs }]) => {
+      getHomepageVideos(),
+    ]).then(([hero, pubs, { data: tests }, { data: imgs }, vids]) => {
       setHeroTraining(hero);
       setTrainings(pubs);
       setTestimonials((tests ?? []) as Testimonial[]);
       setGallery((imgs ?? []) as GalleryImage[]);
+      setVideos(vids as Video[]);
     });
   }, []);
 
@@ -254,6 +261,125 @@ export default function HomePage() {
               ))}
             </div>
           </div>
+        </section>
+      )}
+
+      {/* ── Videos ────────────────────────────────────────────────────── */}
+      {videos.length > 0 && (
+        <section id="videos" className="section-padding" style={{ background: 'linear-gradient(180deg,#050b18 0%,#020810 100%)' }}>
+          <div className="container-max">
+            <motion.div className="text-center mb-12" initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+              <span className="section-label">VIDEO LIBRARY</span>
+              <h2 className="heading-display text-3xl sm:text-4xl text-white mt-4 mb-4">
+                Watch Us <span className="gold-text">In Action</span>
+              </h2>
+              <p className="text-white/50 max-w-lg mx-auto">
+                Training sessions, client testimonials, motivational talks and more.
+              </p>
+            </motion.div>
+
+            {/* Featured video */}
+            {(() => {
+              const feat = videos.find(v => v.featured);
+              return feat ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                  className="rounded-3xl p-6 md:p-8 mb-10 grid lg:grid-cols-[1fr_360px] gap-8 items-center"
+                  style={{ background: 'rgba(212,175,55,0.04)', border: '1px solid rgba(212,175,55,0.15)' }}
+                >
+                  <div
+                    className="relative aspect-video rounded-2xl overflow-hidden cursor-pointer group"
+                    onClick={() => setPlayingVideo(feat)}
+                  >
+                    {feat.thumbnail_url && (
+                      <img src={feat.thumbnail_url} alt={feat.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300" style={{ background: 'rgba(2,8,16,0.5)' }}>
+                      <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.9)', boxShadow: '0 8px 32px rgba(212,175,55,0.5)' }}>
+                        <Play className="w-7 h-7 ml-1" style={{ color: '#020810' }} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    <span className="text-[11px] font-bold uppercase tracking-widest" style={{ color: '#d4af37' }}>★ Featured</span>
+                    <h3 className="heading-display text-2xl text-white">{feat.title}</h3>
+                    {feat.description && <p className="text-white/50 text-sm leading-relaxed">{feat.description}</p>}
+                    <div className="flex gap-3">
+                      <button onClick={() => setPlayingVideo(feat)} className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold" style={{ background: 'linear-gradient(135deg,#f0c040,#d4af37)', color: '#020810' }}>
+                        <Play className="w-4 h-4" /> Watch Now
+                      </button>
+                      <Link to="/videos" className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-all" style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}>
+                        All Videos
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : null;
+            })()}
+
+            {/* Grid of remaining videos */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {videos.filter(v => !v.featured).slice(0, 6).map((v, i) => (
+                <motion.div
+                  key={v.id}
+                  initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
+                  transition={{ delay: i * 0.07 }}
+                  className="flex flex-col rounded-2xl overflow-hidden group cursor-pointer"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+                  onClick={() => setPlayingVideo(v)}
+                >
+                  <div className="relative aspect-video flex-shrink-0">
+                    {v.thumbnail_url
+                      ? <img src={v.thumbnail_url} alt={v.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                      : <div className="w-full h-full flex items-center justify-center" style={{ background: '#000' }}><Youtube className="w-8 h-8 text-white/20" /></div>
+                    }
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300" style={{ background: 'rgba(2,8,16,0.55)' }}>
+                      <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,175,55,0.9)' }}>
+                        <Play className="w-5 h-5 ml-0.5" style={{ color: '#020810' }} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-white/85 text-sm font-semibold line-clamp-2">{v.title}</p>
+                    {v.description && <p className="text-white/40 text-xs mt-1 line-clamp-2">{v.description}</p>}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {videos.length > 6 && (
+              <div className="text-center mt-10">
+                <Link to="/videos" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-semibold transition-all" style={{ background: 'rgba(212,175,55,0.1)', border: '1px solid rgba(212,175,55,0.2)', color: '#d4af37' }}>
+                  View All Videos <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Inline embed modal */}
+          {playingVideo && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              style={{ background: 'rgba(2,8,16,0.92)', backdropFilter: 'blur(12px)' }}
+              onClick={() => setPlayingVideo(null)}
+            >
+              <div className="w-full max-w-3xl" onClick={e => e.stopPropagation()}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-white font-semibold text-sm line-clamp-1 mr-4">{playingVideo.title}</h3>
+                  <button onClick={() => setPlayingVideo(null)} className="w-8 h-8 rounded-lg flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-white/8 transition-all flex-shrink-0">✕</button>
+                </div>
+                <div className="relative w-full aspect-video rounded-2xl overflow-hidden" style={{ background: '#000' }}>
+                  <iframe
+                    src={buildEmbedUrl(playingVideo.youtube_id)}
+                    title={playingVideo.title}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </section>
       )}
 

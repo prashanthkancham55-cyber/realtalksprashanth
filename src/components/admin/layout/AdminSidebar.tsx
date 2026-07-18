@@ -6,6 +6,7 @@ import {
   Image,
   MessageSquare,
   Mail,
+  Youtube,
   CreditCard,
   FileText,
   Settings,
@@ -28,6 +29,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Gallery',               to: '/admin/gallery',       icon: Image },
   { label: 'Testimonials',          to: '/admin/testimonials',  icon: MessageSquare },
   { label: 'Enquiries',             to: '/admin/enquiries',     icon: Mail },
+  { label: 'YouTube Videos',        to: '/admin/videos',        icon: Youtube },
 ];
 
 const DISABLED_ITEMS = [
